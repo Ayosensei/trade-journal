@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark Theme Colors */
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #2a2a2a;
+    
+    /* Accent Colors */
+    --accent-yellow: #d4ff00;
+    --accent-green: #00ff88;
+    --accent-red: #ff4444;
+    
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --text-muted: #555555;
+    
+    /* Border Colors */
+    --border-primary: #333333;
+    --border-secondary: #222222;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  /* Card Styles */
+  .card {
+    @apply bg-[#1a1a1a] rounded-lg border border-[#333333] p-6 transition-all duration-200;
+  }
+  
+  .card:hover {
+    @apply border-[#444444];
+  }
+  
+  /* Button Styles */
+  .btn-primary {
+    @apply bg-[#d4ff00] text-black font-semibold px-6 py-3 rounded-lg transition-all duration-200 hover:bg-[#c4ef00] active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-[#2a2a2a] text-white font-semibold px-6 py-3 rounded-lg border border-[#333333] transition-all duration-200 hover:bg-[#333333] active:scale-95;
+  }
+  
+  /* Input Styles */
+  .input {
+    @apply bg-[#1a1a1a] border border-[#333333] rounded-lg px-4 py-3 text-white placeholder-[#555555] focus:outline-none focus:border-[#d4ff00] transition-colors duration-200;
+  }
+  
+  /* Select Styles */
+  .select {
+    @apply bg-[#1a1a1a] border border-[#333333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#d4ff00] transition-colors duration-200 cursor-pointer;
+  }
+  
+  /* Metric Card Styles */
+  .metric-card {
+    @apply card flex flex-col gap-2;
+  }
+  
+  .metric-value-positive {
+    @apply text-[#00ff88] text-2xl font-bold;
+  }
+  
+  .metric-value-negative {
+    @apply text-[#ff4444] text-2xl font-bold;
+  }
+  
+  .metric-value-neutral {
+    @apply text-white text-2xl font-bold;
+  }
+  
+  /* Navigation Styles */
+  .nav-item {
+    @apply px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer;
+  }
+  
+  .nav-item-active {
+    @apply bg-[#d4ff00] text-black font-semibold;
+  }
+  
+  .nav-item-inactive {
+    @apply text-[#888888] hover:text-white hover:bg-[#2a2a2a];
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-[#d4ff00] to-[#00ff88] bg-clip-text text-transparent;
+  }
+  
+  .glassmorphism {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
