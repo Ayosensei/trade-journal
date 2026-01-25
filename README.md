@@ -1,16 +1,37 @@
-# React + Vite
+Header Section:
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Project title with emoji
+Descriptive tagline
+Technology badges (React, TailwindCSS, Vite, License)
+Features Section:
 
-Currently, two official plugins are available:
+✨ Dashboard & Analytics (metrics, charts, accounts)
+💼 Trade Management (comprehensive trade entry with emotional state tracking)
+🎨 Design & UX (dark theme, responsive, animations)
+💾 Data Persistence (localStorage integration)
+Getting Started:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Prerequisites
+Step-by-step installation instructions
+Build commands
+Usage Guide:
 
-## React Compiler
+How to add your first trade
+How to add custom trading pairs
+How to manage multiple accounts
+Tech Stack:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Complete list of all technologies used with links
+Project Structure:
 
-## Expanding the ESLint configuration
+Clear folder organization diagram
+Supported Assets:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Forex pairs, cryptocurrencies, and custom pairs
+Roadmap:
+
+Future features planned
+Contributing & License:
+
+Contribution guidelines
+MIT License reference
