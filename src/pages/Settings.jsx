@@ -1,6 +1,6 @@
 import React from 'react';
 import { Palette, Database, Bell, Shield, Download, Upload } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../context/ThemeContext.jsx';
 
 const Settings = () => {
   const { currentTheme, switchTheme, availableThemes } = useTheme();
