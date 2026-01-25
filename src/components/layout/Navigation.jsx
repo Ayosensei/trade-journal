@@ -39,7 +39,7 @@ const Navigation = ({ activeTab = 'dashboard', onTabChange }) => {
   };
 
   return (
-    <nav className="border-b border-[#333333] bg-[#0a0a0a] sticky top-[100px] z-40">
+    <nav className="border-b border-white/10 glassmorphism sticky top-[100px] z-40">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between py-3">
           <div className="flex items-center gap-2">
