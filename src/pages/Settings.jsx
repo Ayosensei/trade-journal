@@ -10,12 +10,15 @@ const Settings = () => {
   const { currentTheme, switchTheme, availableThemes } = useTheme();
   const { isAuthenticated, user, login, logout } = useAuth();
   const { exportData, importData, clearAllData, getAllBackups, restoreBackup } = useData();
-  const { selectedAccount, updateAccountBalance } = useTradeContext();
+  const { selectedAccount, updateAccountBalance, accounts, addAccount, deleteAccount } = useTradeContext();
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
   const [selectedBackup, setSelectedBackup] = useState(null);
   const [newBalance, setNewBalance] = useState(selectedAccount?.initialBalance || 0);
+  const [loginUsername, setLoginUsername] = useState('');
+  const [newAccountName, setNewAccountName] = useState('');
+  const [newAccountBalance, setNewAccountBalance] = useState(0);
   const fileInputRef = useRef(null);
 
   const backups = getAllBackups();

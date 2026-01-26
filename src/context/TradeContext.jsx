@@ -18,6 +18,7 @@ export const TradeProvider = ({ children }) => {
   const [trades, setTrades] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [customPairs, setCustomPairs] = useState([]);
+  const [customStrategies, setCustomStrategies] = useState([]);
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -74,6 +75,7 @@ export const TradeProvider = ({ children }) => {
     const newTrade = {
       ...tradeData,
       id: generateId(),
+      status: tradeData.status || 'executed',
       pnl: calculatePnL(tradeData),
       riskReward: calculateRiskReward(tradeData),
       date: tradeData.date || new Date().toISOString(),
@@ -107,6 +109,8 @@ export const TradeProvider = ({ children }) => {
     const updatedTrade = {
       ...oldTrade,
       ...updatedData,
+      // Preserve status if not changed
+      status: updatedData.status || oldTrade.status,
       pnl: calculatePnL({ ...oldTrade, ...updatedData }),
       riskReward: calculateRiskReward({ ...oldTrade, ...updatedData }),
     };
@@ -166,7 +170,17 @@ export const TradeProvider = ({ children }) => {
     return newAccount;
   };
 
-  // Switch active account
+  // Delete an account and reassign its trades to the first remaining account (if any)
+    const deleteAccount = (accountId) => {
+      setAccounts(prev => prev.filter(acc => acc.id !== accountId));
+      // If the deleted account was selected, switch to another
+      if (selectedAccount?.id === accountId) {
+        const remaining = accounts.filter(acc => acc.id !== accountId);
+        setSelectedAccount(remaining[0] || null);
+      }
+    };
+
+    // Switch active account
   const switchAccount = (accountId) => {
     const account = accounts.find(acc => acc.id === accountId);
     if (account) {
@@ -218,6 +232,18 @@ export const TradeProvider = ({ children }) => {
     }
   };
 
+  // Add custom strategy
+  const addCustomStrategy = (strategy) => {
+    if (!customStrategies.includes(strategy)) {
+      setCustomStrategies(prev => [...prev, strategy]);
+    }
+  };
+
+  // Remove custom strategy
+  const removeCustomStrategy = (strategy) => {
+    setCustomStrategies(prev => prev.filter(s => s !== strategy));
+  };
+
   // Get trades for selected account
   const getAccountTrades = () => {
     if (!selectedAccount) return [];
@@ -225,20 +251,24 @@ export const TradeProvider = ({ children }) => {
   };
 
   const value = {
-    accounts,
-    trades,
-    selectedAccount,
-    customPairs,
-    addTrade,
-    updateTrade,
-    deleteTrade,
-    addAccount,
-    switchAccount,
-    updateAccount,
-    updateAccountBalance,
-    addCustomPair,
-    getAccountTrades,
-  };
+  accounts,
+  trades,
+  selectedAccount,
+  customPairs,
+  customStrategies,
+  addTrade,
+  updateTrade,
+  deleteTrade,
+  addAccount,
+  deleteAccount,
+  switchAccount,
+  updateAccount,
+  updateAccountBalance,
+  addCustomPair,
+  addCustomStrategy,
+  removeCustomStrategy,
+  getAccountTrades,
+};
 
   return <TradeContext.Provider value={value}>{children}</TradeContext.Provider>;
 };
