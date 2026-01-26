@@ -102,12 +102,23 @@ const Settings = () => {
               </p>
             </div>
             <button
-              onClick={isAuthenticated ? logout : () => login()}
+              onClick={isAuthenticated ? logout : () => login(loginUsername)}
               className={isAuthenticated ? 'btn-secondary' : 'btn-primary'}
             >
               {isAuthenticated ? 'Logout' : 'Login'}
             </button>
           </div>
+          {!isAuthenticated && (
+            <div className="mt-4 flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter Username"
+                value={loginUsername}
+                onChange={(e) => setLoginUsername(e.target.value)}
+                className="input flex-1"
+              />
+            </div>
+          )}
         </div>
 
         {/* Account Balance Management */}
@@ -147,6 +158,65 @@ const Settings = () => {
                 <p className="text-sm text-gray-400 mt-2">
                   This will adjust your starting balance and recalculate your current balance accordingly.
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Account List & Add Account */}
+        {accounts && accounts.length > 0 && (
+          <div className="card">
+            <h3 className="text-xl font-semibold text-white mb-4">Manage Accounts</h3>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                {accounts.map(acc => (
+                  <div key={acc.id} className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/10">
+                    <div>
+                      <span className="text-white font-medium block">{acc.name}</span>
+                      <span className="text-sm text-gray-400">${acc.currentBalance.toLocaleString()}</span>
+                    </div>
+                    {accounts.length > 1 && (
+                      <button
+                        onClick={() => deleteAccount(acc.id)}
+                        className="text-red-400 hover:text-red-300 transition-colors text-sm px-3 py-1 bg-red-400/10 rounded"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-4 border-t border-white/10">
+                <h4 className="text-white font-medium mb-3">Add New Account</h4>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    placeholder="Account Name"
+                    value={newAccountName}
+                    onChange={e => setNewAccountName(e.target.value)}
+                    className="input flex-1"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Initial Balance"
+                    value={newAccountBalance}
+                    onChange={e => setNewAccountBalance(parseFloat(e.target.value) || 0)}
+                    className="input w-32"
+                  />
+                  <button
+                    onClick={() => {
+                      if (newAccountName.trim()) {
+                        addAccount({ name: newAccountName, initialBalance: newAccountBalance });
+                        setNewAccountName('');
+                        setNewAccountBalance(0);
+                      }
+                    }}
+                    className="btn-primary whitespace-nowrap"
+                  >
+                    Add Account
+                  </button>
+                </div>
               </div>
             </div>
           </div>
