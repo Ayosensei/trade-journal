@@ -21,6 +21,8 @@ const TradeForm = ({ isOpen, onClose, trade = null }) => {
     takeProfit: trade?.takeProfit || '',
     outcome: trade?.outcome || '',
     strategy: trade?.strategy || '',
+    pnl: trade?.pnl || '',
+    riskReward: trade?.riskReward || '',
     emotionalState: trade?.emotionalState || '',
     notes: trade?.notes || '',
     screenshots: trade?.screenshots || [],
@@ -212,16 +214,26 @@ const TradeForm = ({ isOpen, onClose, trade = null }) => {
             />
           </div>
 
-          {/* Position Size */}
-          <Input
-            label="Position Size"
-            type="number"
-            step="0.01"
-            value={formData.positionSize}
-            onChange={(e) => handleChange('positionSize', e.target.value)}
-            required
-            error={errors.positionSize}
-          />
+          {/* Position Size & PnL */}
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Lot Size"
+              type="number"
+              step="0.01"
+              value={formData.positionSize}
+              onChange={(e) => handleChange('positionSize', e.target.value)}
+              required
+              error={errors.positionSize}
+            />
+            <Input
+              label="PnL (Optional)"
+              type="number"
+              step="0.01"
+              value={formData.pnl}
+              onChange={(e) => handleChange('pnl', e.target.value)}
+              placeholder="Auto-calculated if empty"
+            />
+          </div>
 
           {/* Stop Loss & Take Profit */}
           <div className="grid grid-cols-2 gap-4">
@@ -240,6 +252,16 @@ const TradeForm = ({ isOpen, onClose, trade = null }) => {
               onChange={(e) => handleChange('takeProfit', e.target.value)}
             />
           </div>
+
+          {/* Risk Reward */}
+          <Input
+             label="Risk:Reward (Optional)"
+             type="number"
+             step="0.01"
+             value={formData.riskReward}
+             onChange={(e) => handleChange('riskReward', e.target.value)}
+             placeholder="Auto-calculated if empty"
+          />
 
           {/* Outcome & Strategy */}
           <div className="grid grid-cols-2 gap-4">

@@ -103,7 +103,7 @@ const Dashboard = () => {
           <h3 className="text-lg font-semibold text-white">Trading Rules</h3>
         </div>
         
-        <div className="flex gap-4 border-b border-[#333333] mb-4">
+        <div className="flex gap-4 border-b border-[#333333] mb-4 overflow-x-auto scrollbar-hide">
           <button className="px-4 py-2 text-sm font-medium text-white border-b-2 border-[#d4ff00]">
             Before
           </button>

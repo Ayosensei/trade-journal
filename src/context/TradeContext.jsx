@@ -76,8 +76,12 @@ export const TradeProvider = ({ children }) => {
       ...tradeData,
       id: generateId(),
       status: tradeData.status || 'executed',
-      pnl: calculatePnL(tradeData),
-      riskReward: calculateRiskReward(tradeData),
+      pnl: tradeData.pnl !== undefined && tradeData.pnl !== '' 
+        ? parseFloat(tradeData.pnl) 
+        : calculatePnL(tradeData),
+      riskReward: tradeData.riskReward !== undefined && tradeData.riskReward !== '' 
+        ? parseFloat(tradeData.riskReward) 
+        : calculateRiskReward(tradeData),
       date: tradeData.date || new Date().toISOString(),
     };
 
@@ -111,8 +115,12 @@ export const TradeProvider = ({ children }) => {
       ...updatedData,
       // Preserve status if not changed
       status: updatedData.status || oldTrade.status,
-      pnl: calculatePnL({ ...oldTrade, ...updatedData }),
-      riskReward: calculateRiskReward({ ...oldTrade, ...updatedData }),
+      pnl: updatedData.pnl !== undefined && updatedData.pnl !== '' 
+        ? parseFloat(updatedData.pnl) 
+        : calculatePnL({ ...oldTrade, ...updatedData }),
+      riskReward: updatedData.riskReward !== undefined && updatedData.riskReward !== '' 
+        ? parseFloat(updatedData.riskReward) 
+        : calculateRiskReward({ ...oldTrade, ...updatedData }),
     };
 
     setTrades(prev => prev.map(t => t.id === tradeId ? updatedTrade : t));

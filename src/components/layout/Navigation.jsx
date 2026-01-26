@@ -39,16 +39,18 @@ const Navigation = ({ activeTab = 'dashboard', onTabChange }) => {
   };
 
   return (
-    <nav className="border-b border-white/10 glassmorphism sticky top-[100px] z-40">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between py-3">
-          <div className="flex items-center gap-2">
+    <nav className="border-b border-white/10 glassmorphism sticky top-[120px] md:top-[100px] z-40">
+      <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <div className="flex items-center justify-between py-3 overflow-x-auto scrollbar-hide gap-4">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {mainTabs.map((tab) => (
               <TabButton key={tab.id} tab={tab} isActive={activeTab === tab.id} />
             ))}
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="w-[1px] h-6 bg-white/10 flex-shrink-0 md:hidden"></div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
             {secondaryTabs.map((tab) => (
               <TabButton key={tab.id} tab={tab} isActive={activeTab === tab.id} />
             ))}

@@ -13,7 +13,7 @@ const TradeLog = () => {
 
   // Filter and sort trades
   let filteredTrades = allTrades.filter(trade => {
-    const matchesSearch = trade.pair?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = trade.asset?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          trade.notes?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterOutcome === 'all' || trade.outcome === filterOutcome;
     return matchesSearch && matchesFilter;
@@ -27,7 +27,7 @@ const TradeLog = () => {
       case 'pnl':
         return (b.pnl || 0) - (a.pnl || 0);
       case 'pair':
-        return (a.pair || '').localeCompare(b.pair || '');
+        return (a.asset || '').localeCompare(b.asset || '');
       default:
         return 0;
     }
@@ -121,8 +121,8 @@ const TradeLog = () => {
             <div key={trade.id} className="card hover:border-white/30 transition-all cursor-pointer">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-white">{trade.pair || 'Unknown Pair'}</h3>
+                  <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
+                    <h3 className="text-lg font-semibold text-white">{trade.asset || 'Unknown Pair'}</h3>
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       trade.outcome === 'Win'
                         ? 'bg-green-500/20 text-green-400'
@@ -151,7 +151,7 @@ const TradeLog = () => {
                       <p className="text-white font-medium">${trade.exitPrice || 0}</p>
                     </div>
                     <div>
-                      <p className="text-gray-400">Position Size</p>
+                      <p className="text-gray-400">Lot Size</p>
                       <p className="text-white font-medium">{trade.positionSize || 0}</p>
                     </div>
                     <div>

@@ -17,14 +17,14 @@ const Analysis = () => {
 
   // Calculate analytics
   const pairPerformance = trades.reduce((acc, trade) => {
-    const pair = trade.pair || 'Unknown';
-    if (!acc[pair]) {
-      acc[pair] = { pair, wins: 0, losses: 0, totalPnL: 0, count: 0 };
+    const asset = trade.asset || 'Unknown';
+    if (!acc[asset]) {
+      acc[asset] = { pair: asset, wins: 0, losses: 0, totalPnL: 0, count: 0 };
     }
-    acc[pair].count++;
-    acc[pair].totalPnL += trade.pnl || 0;
-    if (trade.outcome === 'Win') acc[pair].wins++;
-    else acc[pair].losses++;
+    acc[asset].count++;
+    acc[asset].totalPnL += trade.pnl || 0;
+    if (trade.outcome === 'Win') acc[asset].wins++;
+    else acc[asset].losses++;
     return acc;
   }, {});
 
