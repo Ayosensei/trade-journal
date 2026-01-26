@@ -163,3 +163,163 @@ export const formatPercentage = (value) => {
   const sign = value >= 0 ? '+' : '';
   return `${sign}${value}%`;
 };
+
+/**
+ * Calculate current win/loss streak
+ * @param {Array} trades - Array of trade objects
+ * @returns {Object} {type: 'win'|'loss', count: number}
+ */
+export const calculateCurrentStreak = (trades) => {
+  if (!trades || trades.length === 0) return { type: 'none', count: 0 };
+  
+  const sortedTrades = [...trades].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const lastOutcome = sortedTrades[0].outcome;
+  
+  let count = 0;
+  for (const trade of sortedTrades) {
+    if (trade.outcome === lastOutcome) {
+      count++;
+    } else {
+      break;
+    }
+  }
+  
+  return {
+    type: lastOutcome === 'Win' ? 'win' : 'loss',
+    count
+  };
+};
+
+/**
+ * Calculate profit factor
+ * @param {Array} trades - Array of trade objects
+ * @returns {number} Profit factor
+ */
+export const calculateProfitFactor = (trades) => {
+  if (!trades || trades.length === 0) return 0;
+  
+  const grossProfit = trades
+    .filter(t => t.pnl > 0)
+    .reduce((sum, t) => sum + t.pnl, 0);
+    
+  const grossLoss = Math.abs(trades
+    .filter(t => t.pnl < 0)
+    .reduce((sum, t) => sum + t.pnl, 0));
+  
+  return grossLoss > 0 ? (grossProfit / grossLoss).toFixed(2) : 0;
+};
+
+/**
+ * Calculate expectancy
+ * @param {Array} trades - Array of trade objects
+ * @returns {number} Expectancy per trade
+ */
+export const calculateExpectancy = (trades) => {
+  if (!trades || trades.length === 0) return 0;
+  
+  const winRate = parseFloat(calculateWinRate(trades)) / 100;
+  const avgWin = calculateAverageWin(trades);
+  const avgLoss = calculateAverageLoss(trades);
+  
+  return ((winRate * avgWin) - ((1 - winRate) * avgLoss)).toFixed(2);
+};
+
+/**
+ * Calculate maximum drawdown
+ * @param {Array} trades - Array of trade objects
+ * @param {number} initialBalance - Starting balance
+ * @returns {Object} {amount: number, percentage: number}
+ */
+export const calculateMaxDrawdown = (trades, initialBalance = 0) => {
+  if (!trades || trades.length === 0) return { amount: 0, percentage: 0 };
+  
+  const sortedTrades = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
+  
+  let peak = initialBalance;
+  let maxDrawdown = 0;
+  let currentBalance = initialBalance;
+  
+  sortedTrades.forEach(trade => {
+    currentBalance += trade.pnl || 0;
+    
+    if (currentBalance > peak) {
+      peak = currentBalance;
+    }
+    
+    const drawdown = peak - currentBalance;
+    if (drawdown > maxDrawdown) {
+      maxDrawdown = drawdown;
+    }
+  });
+  
+  const percentage = peak > 0 ? ((maxDrawdown / peak) * 100).toFixed(2) : 0;
+  
+  return {
+    amount: maxDrawdown.toFixed(2),
+    percentage
+  };
+};
+
+/**
+ * Get monthly performance breakdown
+ * @param {Array} trades - Array of trade objects
+ * @returns {Array} Array of {month, pnl, trades, winRate}
+ */
+export const getMonthlyPerformance = (trades) => {
+  if (!trades || trades.length === 0) return [];
+  
+  const monthlyData = {};
+  
+  trades.forEach(trade => {
+    const date = new Date(trade.date);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    
+    if (!monthlyData[monthKey]) {
+      monthlyData[monthKey] = {
+        month: monthKey,
+        pnl: 0,
+        trades: [],
+      };
+    }
+    
+    monthlyData[monthKey].pnl += trade.pnl || 0;
+    monthlyData[monthKey].trades.push(trade);
+  });
+  
+  return Object.values(monthlyData).map(month => ({
+    month: month.month,
+    pnl: month.pnl,
+    tradeCount: month.trades.length,
+    winRate: calculateWinRate(month.trades),
+  })).sort((a, b) => a.month.localeCompare(b.month));
+};
+
+/**
+ * Get weekday distribution
+ * @param {Array} trades - Array of trade objects
+ * @returns {Array} Array of {day, trades, pnl, winRate}
+ */
+export const getWeekdayDistribution = (trades) => {
+  if (!trades || trades.length === 0) return [];
+  
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const weekdayData = weekdays.map(day => ({
+    day,
+    trades: [],
+    pnl: 0,
+  }));
+  
+  trades.forEach(trade => {
+    const dayIndex = new Date(trade.date).getDay();
+    weekdayData[dayIndex].trades.push(trade);
+    weekdayData[dayIndex].pnl += trade.pnl || 0;
+  });
+  
+  return weekdayData.map(day => ({
+    day: day.day,
+    tradeCount: day.trades.length,
+    pnl: day.pnl.toFixed(2),
+    winRate: day.trades.length > 0 ? calculateWinRate(day.trades) : 0,
+  })).filter(day => day.tradeCount > 0);
+};
+

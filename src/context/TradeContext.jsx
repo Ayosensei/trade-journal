@@ -174,6 +174,43 @@ export const TradeProvider = ({ children }) => {
     }
   };
 
+  // Update account details
+  const updateAccount = (accountId, updatedData) => {
+    setAccounts(prev => prev.map(acc =>
+      acc.id === accountId ? { ...acc, ...updatedData } : acc
+    ));
+    
+    if (selectedAccount?.id === accountId) {
+      setSelectedAccount(prev => ({ ...prev, ...updatedData }));
+    }
+  };
+
+  // Update account balance (adjusts both initial and current)
+  const updateAccountBalance = (accountId, newBalance) => {
+    const account = accounts.find(acc => acc.id === accountId);
+    if (!account) return;
+
+    const balanceDiff = newBalance - account.initialBalance;
+    
+    setAccounts(prev => prev.map(acc =>
+      acc.id === accountId
+        ? {
+            ...acc,
+            initialBalance: newBalance,
+            currentBalance: acc.currentBalance + balanceDiff,
+          }
+        : acc
+    ));
+
+    if (selectedAccount?.id === accountId) {
+      setSelectedAccount(prev => ({
+        ...prev,
+        initialBalance: newBalance,
+        currentBalance: prev.currentBalance + balanceDiff,
+      }));
+    }
+  };
+
   // Add custom trading pair
   const addCustomPair = (pair) => {
     if (!customPairs.includes(pair)) {
@@ -197,6 +234,8 @@ export const TradeProvider = ({ children }) => {
     deleteTrade,
     addAccount,
     switchAccount,
+    updateAccount,
+    updateAccountBalance,
     addCustomPair,
     getAccountTrades,
   };

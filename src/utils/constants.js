@@ -48,4 +48,12 @@ export const STORAGE_KEYS = {
   TRADES: 'trade_journal_trades',
   CUSTOM_PAIRS: 'trade_journal_custom_pairs',
   SELECTED_ACCOUNT: 'trade_journal_selected_account',
+  JOURNAL_ENTRIES: 'trade_journal_entries',
+  GOALS: 'trade_journal_goals',
+  USER_SESSION: 'trade_journal_user_session',
+  BACKUP_PREFIX: 'trade_journal_backup_',
+  DATA_VERSION: 'trade_journal_data_version',
 };
+
+export const DATA_VERSION = '1.0.0';
+

@@ -1,10 +1,18 @@
 import React from 'react';
-import { BarChart3, TrendingUp, Clock, DollarSign } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, Clock, DollarSign, Target, Zap, Activity } from 'lucide-react';
 import { useTradeContext } from '../context/TradeContext';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import {
+  calculateCurrentStreak,
+  calculateProfitFactor,
+  calculateExpectancy,
+  calculateMaxDrawdown,
+  getMonthlyPerformance,
+  getWeekdayDistribution,
+} from '../utils/calculations';
 
 const Analysis = () => {
-  const { getAccountTrades } = useTradeContext();
+  const { getAccountTrades, selectedAccount } = useTradeContext();
   const trades = getAccountTrades();
 
   // Calculate analytics
@@ -40,7 +48,13 @@ const Analysis = () => {
 
   const activeHours = hourlyData.filter(h => h.trades > 0);
 
-  const COLORS = ['#00ff88', '#d4ff00', '#00d4ff', '#ff00ff', '#ff8800'];
+  // Advanced metrics
+  const streak = calculateCurrentStreak(trades);
+  const profitFactor = calculateProfitFactor(trades);
+  const expectancy = calculateExpectancy(trades);
+  const maxDrawdown = calculateMaxDrawdown(trades, selectedAccount?.initialBalance || 0);
+  const monthlyPerformance = getMonthlyPerformance(trades);
+  const weekdayDistribution = getWeekdayDistribution(trades);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
@@ -87,6 +101,46 @@ const Analysis = () => {
         </div>
       </div>
 
+      {/* Advanced Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="card">
+          <div className="flex items-center gap-3 mb-2">
+            <Zap className={streak.type === 'win' ? 'text-green-400' : 'text-red-400'} size={20} />
+            <span className="text-gray-400 text-sm">Current Streak</span>
+          </div>
+          <p className={`text-2xl font-bold ${streak.type === 'win' ? 'text-green-400' : 'text-red-400'}`}>
+            {streak.count} {streak.type === 'win' ? 'Wins' : 'Losses'}
+          </p>
+        </div>
+        <div className="card">
+          <div className="flex items-center gap-3 mb-2">
+            <Target className="text-white" size={20} />
+            <span className="text-gray-400 text-sm">Profit Factor</span>
+          </div>
+          <p className={`text-2xl font-bold ${profitFactor >= 2 ? 'text-green-400' : profitFactor >= 1 ? 'text-yellow-400' : 'text-red-400'}`}>
+            {profitFactor}
+          </p>
+        </div>
+        <div className="card">
+          <div className="flex items-center gap-3 mb-2">
+            <Activity className="text-white" size={20} />
+            <span className="text-gray-400 text-sm">Expectancy</span>
+          </div>
+          <p className={`text-2xl font-bold ${expectancy >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            ${expectancy}
+          </p>
+        </div>
+        <div className="card">
+          <div className="flex items-center gap-3 mb-2">
+            <TrendingDown className="text-red-400" size={20} />
+            <span className="text-gray-400 text-sm">Max Drawdown</span>
+          </div>
+          <p className="text-2xl font-bold text-red-400">
+            ${maxDrawdown.amount} ({maxDrawdown.percentage}%)
+          </p>
+        </div>
+      </div>
+
       {/* Pair Performance */}
       <div className="card mb-8">
         <h3 className="text-xl font-semibold text-white mb-6">Performance by Pair</h3>
@@ -125,6 +179,65 @@ const Analysis = () => {
           <p className="text-center text-gray-400 py-8">No trade data available</p>
         )}
       </div>
+
+      {/* Monthly Performance */}
+      {monthlyPerformance.length > 0 && (
+        <div className="card mb-8">
+          <h3 className="text-xl font-semibold text-white mb-6">Monthly Performance</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyPerformance}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+              <XAxis dataKey="month" stroke="#888" />
+              <YAxis stroke="#888" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '8px',
+                }}
+              />
+              <Bar dataKey="pnl" fill="var(--accent-primary)" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Weekday Distribution */}
+      {weekdayDistribution.length > 0 && (
+        <div className="card mb-8">
+          <h3 className="text-xl font-semibold text-white mb-6">Performance by Day of Week</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="text-left py-3 px-4 text-gray-400 font-medium">Day</th>
+                  <th className="text-right py-3 px-4 text-gray-400 font-medium">Trades</th>
+                  <th className="text-right py-3 px-4 text-gray-400 font-medium">Win Rate</th>
+                  <th className="text-right py-3 px-4 text-gray-400 font-medium">Total P/L</th>
+                </tr>
+              </thead>
+              <tbody>
+                {weekdayDistribution.map((day, index) => (
+                  <tr key={index} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <td className="py-3 px-4 text-white font-medium">{day.day}</td>
+                    <td className="py-3 px-4 text-right text-white">{day.tradeCount}</td>
+                    <td className="py-3 px-4 text-right">
+                      <span className={day.winRate >= 50 ? 'text-green-400' : 'text-red-400'}>
+                        {day.winRate}%
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <span className={day.pnl >= 0 ? 'text-green-400' : 'text-red-400'}>
+                        ${day.pnl}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Hourly Performance Chart */}
       <div className="card">

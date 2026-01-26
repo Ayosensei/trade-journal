@@ -1,9 +1,78 @@
-import React from 'react';
-import { Palette, Database, Bell, Shield, Download, Upload } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Palette, Database, Bell, Shield, Download, Upload, User, DollarSign, Save } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useData } from '../context/DataContext.jsx';
+import { useTradeContext } from '../context/TradeContext.jsx';
+import ConfirmDialog from '../components/ui/ConfirmDialog.jsx';
 
 const Settings = () => {
   const { currentTheme, switchTheme, availableThemes } = useTheme();
+  const { isAuthenticated, user, login, logout } = useAuth();
+  const { exportData, importData, clearAllData, getAllBackups, restoreBackup } = useData();
+  const { selectedAccount, updateAccountBalance } = useTradeContext();
+
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+  const [selectedBackup, setSelectedBackup] = useState(null);
+  const [newBalance, setNewBalance] = useState(selectedAccount?.initialBalance || 0);
+  const fileInputRef = useRef(null);
+
+  const backups = getAllBackups();
+
+  const handleExport = () => {
+    try {
+      exportData();
+    } catch (error) {
+      alert('Failed to export data: ' + error.message);
+    }
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    importData(file)
+      .then(() => {
+        alert('Data imported successfully!');
+      })
+      .catch((error) => {
+        alert('Failed to import data: ' + error.message);
+      });
+  };
+
+  const handleClearData = () => {
+    try {
+      clearAllData();
+    } catch (error) {
+      alert('Failed to clear data: ' + error.message);
+    }
+    setShowClearConfirm(false);
+  };
+
+  const handleRestoreBackup = () => {
+    if (!selectedBackup) return;
+    
+    try {
+      restoreBackup(selectedBackup);
+    } catch (error) {
+      alert('Failed to restore backup: ' + error.message);
+    }
+    setShowRestoreConfirm(false);
+  };
+
+  const handleUpdateBalance = () => {
+    if (!selectedAccount) return;
+    
+    const balance = parseFloat(newBalance);
+    if (isNaN(balance) || balance < 0) {
+      alert('Please enter a valid balance');
+      return;
+    }
+
+    updateAccountBalance(selectedAccount.id, balance);
+    alert('Account balance updated successfully!');
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
@@ -13,6 +82,73 @@ const Settings = () => {
       </div>
 
       <div className="grid gap-6">
+        {/* Authentication */}
+        <div className="card">
+          <div className="flex items-center gap-3 mb-6">
+            <User className="text-white" size={24} />
+            <h3 className="text-xl font-semibold text-white">Account</h3>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white font-medium">
+                {isAuthenticated ? `Logged in as ${user?.username || 'Trader'}` : 'Not logged in'}
+              </p>
+              <p className="text-sm text-gray-400 mt-1">
+                {isAuthenticated ? 'You have access to all features' : 'Login to save your data'}
+              </p>
+            </div>
+            <button
+              onClick={isAuthenticated ? logout : () => login()}
+              className={isAuthenticated ? 'btn-secondary' : 'btn-primary'}
+            >
+              {isAuthenticated ? 'Logout' : 'Login'}
+            </button>
+          </div>
+        </div>
+
+        {/* Account Balance Management */}
+        {selectedAccount && (
+          <div className="card">
+            <div className="flex items-center gap-3 mb-6">
+              <DollarSign className="text-white" size={24} />
+              <h3 className="text-xl font-semibold text-white">Account Balance</h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-400 mb-2">Current Account: {selectedAccount.name}</p>
+                <p className="text-2xl font-bold text-white mb-4">
+                  ${selectedAccount.currentBalance.toLocaleString()}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-white mb-2">Adjust Starting Balance</label>
+                <div className="flex gap-3">
+                  <input
+                    type="number"
+                    value={newBalance}
+                    onChange={(e) => setNewBalance(e.target.value)}
+                    className="input flex-1"
+                    placeholder="Enter new balance"
+                  />
+                  <button
+                    onClick={handleUpdateBalance}
+                    className="btn-primary flex items-center gap-2"
+                  >
+                    <Save size={18} />
+                    Update
+                  </button>
+                </div>
+                <p className="text-sm text-gray-400 mt-2">
+                  This will adjust your starting balance and recalculate your current balance accordingly.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Theme Settings */}
         <div className="card">
           <div className="flex items-center gap-3 mb-6">
@@ -63,24 +199,70 @@ const Settings = () => {
             <h3 className="text-xl font-semibold text-white">Data Management</h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button className="btn-secondary flex items-center justify-center gap-2">
-              <Download size={18} />
-              Export Data
-            </button>
-            <button className="btn-secondary flex items-center justify-center gap-2">
-              <Upload size={18} />
-              Import Data
-            </button>
-          </div>
-          
-          <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-            <p className="text-sm text-red-400">
-              <strong>Warning:</strong> Clearing data will permanently delete all your trades and accounts.
-            </p>
-            <button className="mt-3 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors text-sm font-medium">
-              Clear All Data
-            </button>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button
+                onClick={handleExport}
+                className="btn-secondary flex items-center justify-center gap-2"
+              >
+                <Download size={18} />
+                Export Data
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="btn-secondary flex items-center justify-center gap-2"
+              >
+                <Upload size={18} />
+                Import Data
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                className="hidden"
+              />
+            </div>
+
+            {/* Backups */}
+            {backups.length > 0 && (
+              <div>
+                <h4 className="text-white font-semibold mb-3">Recent Backups</h4>
+                <div className="space-y-2">
+                  {backups.slice(0, 5).map((backup) => (
+                    <div
+                      key={backup.key}
+                      className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                    >
+                      <span className="text-white text-sm">
+                        {new Date(backup.timestamp).toLocaleString()}
+                      </span>
+                      <button
+                        onClick={() => {
+                          setSelectedBackup(backup.timestamp);
+                          setShowRestoreConfirm(true);
+                        }}
+                        className="text-sm text-blue-400 hover:text-blue-300"
+                      >
+                        Restore
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+              <p className="text-sm text-red-400">
+                <strong>Warning:</strong> Clearing data will permanently delete all your trades, accounts, journal entries, and goals. A backup will be created automatically.
+              </p>
+              <button
+                onClick={() => setShowClearConfirm(true)}
+                className="mt-3 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors text-sm font-medium"
+              >
+                Clear All Data
+              </button>
+            </div>
           </div>
         </div>
 
@@ -106,23 +288,28 @@ const Settings = () => {
             </label>
           </div>
         </div>
-
-        {/* Privacy & Security */}
-        <div className="card">
-          <div className="flex items-center gap-3 mb-6">
-            <Shield className="text-white" size={24} />
-            <h3 className="text-xl font-semibold text-white">Privacy & Security</h3>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-white mb-2">Change Password</label>
-              <input type="password" className="input w-full" placeholder="New password" />
-            </div>
-            <button className="btn-primary">Update Password</button>
-          </div>
-        </div>
       </div>
+
+      {/* Confirmation Dialogs */}
+      <ConfirmDialog
+        isOpen={showClearConfirm}
+        title="Clear All Data"
+        message="Are you sure you want to clear all data? This action cannot be undone, but a backup will be created automatically."
+        onConfirm={handleClearData}
+        onCancel={() => setShowClearConfirm(false)}
+        confirmText="Clear Data"
+        variant="danger"
+      />
+
+      <ConfirmDialog
+        isOpen={showRestoreConfirm}
+        title="Restore Backup"
+        message="Are you sure you want to restore this backup? Your current data will be replaced."
+        onConfirm={handleRestoreBackup}
+        onCancel={() => setShowRestoreConfirm(false)}
+        confirmText="Restore"
+        variant="warning"
+      />
     </div>
   );
 };
