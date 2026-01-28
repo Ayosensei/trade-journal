@@ -1,17 +1,23 @@
 import React from 'react';
-import { Plus, ChevronDown } from 'lucide-react';
+import { Plus, ChevronDown, BarChart2 } from 'lucide-react';
 import Button from '../ui/Button';
 
 const Header = ({ onAddTrade, selectedAccount, accounts, onAccountChange }) => {
   return (
-    <header className="border-b border-white/10 glassmorphism sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0 mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gradient">Trade Journal</h1>
-            <p className="text-sm text-gray-400 mt-1">
-              Track your trades, Analyze your performance
-            </p>
+    <header className="border-b sticky top-0 z-50" style={{ borderColor: 'var(--border-secondary)', backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
+          {/* Logo and Branding */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--accent-primary)' }}>
+              <BarChart2 size={22} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>TradeJournal</h1>
+              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                Track • Analyze • Improve
+              </p>
+            </div>
           </div>
           
           <div className="flex items-center gap-3 w-full md:w-auto">
@@ -21,7 +27,7 @@ const Header = ({ onAddTrade, selectedAccount, accounts, onAccountChange }) => {
                 <select
                   value={selectedAccount?.id || ''}
                   onChange={(e) => onAccountChange(e.target.value)}
-                  className="select pr-10 appearance-none w-full"
+                  className="select pr-10 appearance-none w-full md:w-48"
                 >
                   {accounts.map((account) => (
                     <option key={account.id} value={account.id}>
@@ -31,7 +37,8 @@ const Header = ({ onAddTrade, selectedAccount, accounts, onAccountChange }) => {
                 </select>
                 <ChevronDown 
                   size={16} 
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" 
+                  className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" 
+                  style={{ color: 'var(--text-secondary)' }}
                 />
               </div>
             )}

@@ -6,22 +6,23 @@
 
 @layer base {
   :root {
-    /* Theme Colors - Will be dynamically updated by ThemeContext */
-    --bg-primary: #050505;
-    --bg-secondary: #0f0f0f;
-    --bg-tertiary: #1a1a1a;
-    --accent-primary: #d4ff00;
-    --accent-secondary: #00ff88;
-    --accent-danger: #ff4444;
-    --text-primary: #ffffff;
-    --text-secondary: #888888;
-    --text-muted: #555555;
-    --border-primary: #333333;
-    --border-secondary: #222222;
-    --gradient-start: #d4ff00;
-    --gradient-end: #00ff88;
+    /* TradingView-inspired Theme Colors */
+    --bg-primary: #131722;
+    --bg-secondary: #1e222d;
+    --bg-tertiary: #2a2e39;
+    --accent-primary: #2962ff;
+    --accent-secondary: #26a69a;
+    --accent-danger: #ef5350;
+    --accent-warning: #ff9800;
+    --text-primary: #d1d4dc;
+    --text-secondary: #787b86;
+    --text-muted: #4a4e59;
+    --border-primary: #363a45;
+    --border-secondary: #2a2e39;
+    --gradient-start: #2962ff;
+    --gradient-end: #26a69a;
 
-    /* Cursor tracking */
+    /* Cursor tracking for subtle hover effect */
     --cursor-x: 50%;
     --cursor-y: 50%;
   }
@@ -47,7 +48,7 @@
     overflow-x: hidden;
   }
 
-  /* Animated gradient background with dynamic theme colors */
+  /* Subtle background gradient - reduced and darker */
   body::before {
     content: "";
     position: fixed;
@@ -58,20 +59,20 @@
     background:
       radial-gradient(
         circle at var(--cursor-x) var(--cursor-y),
-        color-mix(in srgb, var(--accent-primary) 20%, transparent) 0%,
-        transparent 50%
+        color-mix(in srgb, var(--accent-primary) 6%, transparent) 0%,
+        transparent 30%
       ),
       radial-gradient(
         ellipse at 20% 80%,
-        color-mix(in srgb, var(--accent-primary) 12%, transparent) 0%,
-        transparent 50%
+        color-mix(in srgb, var(--accent-primary) 4%, transparent) 0%,
+        transparent 35%
       ),
       radial-gradient(
         ellipse at 80% 20%,
-        color-mix(in srgb, var(--accent-secondary) 12%, transparent) 0%,
-        transparent 50%
+        color-mix(in srgb, var(--accent-secondary) 4%, transparent) 0%,
+        transparent 35%
       );
-    animation: gradientShift 15s ease infinite;
+    animation: gradientShift 20s ease infinite;
     pointer-events: none;
     z-index: 0;
   }
@@ -82,7 +83,7 @@
       opacity: 1;
     }
     50% {
-      opacity: 0.8;
+      opacity: 0.7;
     }
   }
 
@@ -94,43 +95,64 @@
 }
 
 @layer components {
-  /* Card Styles with Enhanced Glassmorphism */
+  /* TradingView-style Card */
   .card {
-    @apply bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 p-6 transition-all duration-300;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    @apply rounded-lg border p-6 transition-all duration-200;
+    background-color: var(--bg-secondary);
+    border-color: var(--border-secondary);
   }
 
   .card:hover {
-    @apply border-white/20;
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+    border-color: var(--border-primary);
   }
 
-  /* Button Styles */
+  /* Primary Button - TradingView Blue */
   .btn-primary {
     background: var(--accent-primary);
-    @apply text-black font-semibold px-6 py-3 rounded-lg transition-all duration-200 hover:brightness-110 active:scale-95;
-    box-shadow: 0 4px 20px rgba(212, 255, 0, 0.3);
+    @apply text-white font-medium px-5 py-2.5 rounded-md transition-all duration-200 hover:brightness-110 active:scale-[0.98];
   }
 
+  /* Secondary Button */
   .btn-secondary {
-    @apply bg-white/5 backdrop-blur-lg text-white font-semibold px-6 py-3 rounded-lg border border-white/10 transition-all duration-200 hover:bg-white/10 active:scale-95;
+    @apply font-medium px-5 py-2.5 rounded-md border transition-all duration-200 hover:brightness-110 active:scale-[0.98];
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--border-primary);
+  }
+
+  /* Danger Button */
+  .btn-danger {
+    background: var(--accent-danger);
+    @apply text-white font-medium px-5 py-2.5 rounded-md transition-all duration-200 hover:brightness-110 active:scale-[0.98];
   }
 
   /* Input Styles */
   .input {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none transition-all duration-200;
+    @apply rounded-md px-4 py-2.5 focus:outline-none transition-all duration-200;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
     color: var(--text-primary);
+  }
+
+  .input::placeholder {
+    color: var(--text-muted);
   }
 
   .input:focus {
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px rgba(212, 255, 0, 0.1);
+    box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.15);
   }
 
   /* Select Styles */
   .select {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none transition-all duration-200 cursor-pointer;
+    @apply rounded-md px-4 py-2.5 focus:outline-none transition-all duration-200 cursor-pointer;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    color: var(--text-primary);
   }
 
   .select:focus {
@@ -139,7 +161,7 @@
 
   /* Metric Card Styles */
   .metric-card {
-    @apply card flex flex-col gap-2;
+    @apply card flex flex-col gap-1;
   }
 
   .metric-value-positive {
@@ -153,44 +175,76 @@
   }
 
   .metric-value-neutral {
-    @apply text-white text-2xl font-bold;
+    color: var(--text-primary);
+    @apply text-2xl font-bold;
   }
 
   /* Navigation Styles */
   .nav-item {
-    @apply px-4 py-2 rounded-lg transition-all duration-200 cursor-pointer;
+    @apply px-4 py-2 transition-all duration-200 cursor-pointer relative;
+    color: var(--text-secondary);
   }
 
   .nav-item-active {
-    background: var(--accent-primary);
-    @apply text-black font-semibold;
-    box-shadow: 0 4px 12px rgba(212, 255, 0, 0.3);
+    color: var(--text-primary);
+    @apply font-medium;
   }
 
-  .nav-item-inactive {
+  .nav-item-active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-primary);
+  }
+
+  .nav-item-inactive:hover {
+    color: var(--text-primary);
+  }
+
+  /* Table styles */
+  .table-header {
+    @apply text-xs font-medium uppercase tracking-wider;
     color: var(--text-secondary);
-    @apply hover:text-white hover:bg-white/5;
+    background-color: var(--bg-tertiary);
+  }
+
+  .table-row {
+    @apply border-b transition-colors;
+    border-color: var(--border-secondary);
+  }
+
+  .table-row:hover {
+    background-color: var(--bg-tertiary);
   }
 }
 
 @layer utilities {
   .text-gradient {
     background: linear-gradient(
-      to right,
+      135deg,
       var(--gradient-start),
       var(--gradient-end)
     );
     @apply bg-clip-text text-transparent;
   }
 
-  .glassmorphism {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  .text-profit {
+    color: var(--accent-secondary);
   }
 
-  .glassmorphism-strong {
-    @apply bg-white/10 backdrop-blur-2xl border border-white/20;
-    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
+  .text-loss {
+    color: var(--accent-danger);
+  }
+
+  .bg-profit {
+    background-color: rgba(38, 166, 154, 0.15);
+  }
+
+  .bg-loss {
+    background-color: rgba(239, 83, 80, 0.15);
   }
 
   .scrollbar-hide {
@@ -200,5 +254,29 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Custom scrollbar for TradingView look */
+  .scrollbar-tv {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-primary) var(--bg-secondary);
+  }
+
+  .scrollbar-tv::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-tv::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+  }
+
+  .scrollbar-tv::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: 3px;
+  }
+
+  .scrollbar-tv::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
   }
 }

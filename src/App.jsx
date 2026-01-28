@@ -14,10 +14,22 @@ import TradeForm from './components/trades/TradeForm';
 function AppContent() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isTradeFormOpen, setIsTradeFormOpen] = useState(false);
+  const [editingTrade, setEditingTrade] = useState(null);
   const { selectedAccount, accounts, switchAccount } = useTradeContext();
 
   const handleAddTrade = () => {
+    setEditingTrade(null);
     setIsTradeFormOpen(true);
+  };
+
+  const handleEditTrade = (trade) => {
+    setEditingTrade(trade);
+    setIsTradeFormOpen(true);
+  };
+
+  const handleCloseTradeForm = () => {
+    setIsTradeFormOpen(false);
+    setEditingTrade(null);
   };
 
   const handleAccountChange = (accountId) => {
@@ -31,13 +43,13 @@ function AppContent() {
       case 'daily-journal':
         return <DailyJournal />;
       case 'trade-log':
-        return <TradeLog />;
+        return <TradeLog onEditTrade={handleEditTrade} />;
       case 'insights':
         return (
           <div className="max-w-7xl mx-auto px-6 py-8">
             <div className="card text-center py-12">
-              <h2 className="text-2xl font-bold text-white mb-2">Insights</h2>
-              <p className="text-gray-400">Coming soon...</p>
+              <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Insights</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>Coming soon...</p>
             </div>
           </div>
         );
@@ -47,8 +59,8 @@ function AppContent() {
         return (
           <div className="max-w-7xl mx-auto px-6 py-8">
             <div className="card text-center py-12">
-              <h2 className="text-2xl font-bold text-white mb-2">Trading Lab</h2>
-              <p className="text-gray-400">Coming soon...</p>
+              <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Trading Lab</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>Coming soon...</p>
             </div>
           </div>
         );
@@ -80,7 +92,8 @@ function AppContent() {
 
       <TradeForm
         isOpen={isTradeFormOpen}
-        onClose={() => setIsTradeFormOpen(false)}
+        onClose={handleCloseTradeForm}
+        trade={editingTrade}
       />
     </div>
   );

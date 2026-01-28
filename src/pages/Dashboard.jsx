@@ -5,7 +5,8 @@ import {
   Repeat, 
   TrendingUp, 
   TrendingDown,
-  BarChart3 
+  BarChart3,
+  CheckCircle
 } from 'lucide-react';
 import MetricCard from '../components/dashboard/MetricCard';
 import AccountCard from '../components/dashboard/AccountCard';
@@ -37,9 +38,9 @@ const Dashboard = () => {
   const equityData = getEquityCurveData(trades, selectedAccount?.initialBalance || 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="max-w-7xl mx-auto px-6 py-6">
       {/* Account Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {accounts.map((account) => (
           <AccountCard
             key={account.id}
@@ -51,7 +52,7 @@ const Dashboard = () => {
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         <MetricCard
           icon={DollarSign}
           label="Net P/L"
@@ -73,13 +74,13 @@ const Dashboard = () => {
         />
         <MetricCard
           icon={TrendingUp}
-          label="Average Win"
+          label="Avg Win"
           value={formatCurrency(avgWin)}
           type="positive"
         />
         <MetricCard
           icon={TrendingDown}
-          label="Average Loss"
+          label="Avg Loss"
           value={formatCurrency(avgLoss)}
           type="negative"
         />
@@ -92,42 +93,42 @@ const Dashboard = () => {
       </div>
 
       {/* Equity Chart */}
-      <div className="mb-8">
+      <div className="mb-6">
         <EquityChart data={equityData} currentPnL={netPnL} />
       </div>
 
       {/* Trading Rules Section */}
       <div className="card">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="text-xl">⚡</div>
-          <h3 className="text-lg font-semibold text-white">Trading Rules</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <CheckCircle size={18} style={{ color: 'var(--accent-primary)' }} />
+          <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Trading Checklist</h3>
         </div>
         
-        <div className="flex gap-4 border-b border-[#333333] mb-4 overflow-x-auto scrollbar-hide">
-          <button className="px-4 py-2 text-sm font-medium text-white border-b-2 border-[#d4ff00]">
-            Before
+        <div className="flex gap-4 border-b mb-4 overflow-x-auto scrollbar-hide" style={{ borderColor: 'var(--border-secondary)' }}>
+          <button className="px-3 py-2 text-xs font-medium border-b-2" style={{ color: 'var(--text-primary)', borderColor: 'var(--accent-primary)' }}>
+            Before Trade
           </button>
-          <button className="px-4 py-2 text-sm font-medium text-[#888888] hover:text-white">
-            During
+          <button className="px-3 py-2 text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+            During Trade
           </button>
-          <button className="px-4 py-2 text-sm font-medium text-[#888888] hover:text-white">
-            After
+          <button className="px-3 py-2 text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+            After Trade
           </button>
         </div>
         
         <div className="space-y-2">
-          <div className="flex items-center gap-3 text-sm">
-            <input type="checkbox" className="w-4 h-4" />
-            <span className="text-[#888888]">Ensure that weekly analysis is done</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <input type="checkbox" className="w-4 h-4" />
-            <span className="text-[#888888]">Check market conditions and news</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <input type="checkbox" className="w-4 h-4" />
-            <span className="text-[#888888]">Review trading plan and strategy</span>
-          </div>
+          <label className="flex items-center gap-3 text-sm cursor-pointer">
+            <input type="checkbox" className="w-4 h-4 rounded" style={{ accentColor: 'var(--accent-primary)' }} />
+            <span style={{ color: 'var(--text-secondary)' }}>Ensure that weekly analysis is done</span>
+          </label>
+          <label className="flex items-center gap-3 text-sm cursor-pointer">
+            <input type="checkbox" className="w-4 h-4 rounded" style={{ accentColor: 'var(--accent-primary)' }} />
+            <span style={{ color: 'var(--text-secondary)' }}>Check market conditions and news</span>
+          </label>
+          <label className="flex items-center gap-3 text-sm cursor-pointer">
+            <input type="checkbox" className="w-4 h-4 rounded" style={{ accentColor: 'var(--accent-primary)' }} />
+            <span style={{ color: 'var(--text-secondary)' }}>Review trading plan and strategy</span>
+          </label>
         </div>
       </div>
     </div>

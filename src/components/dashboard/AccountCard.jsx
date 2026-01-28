@@ -11,24 +11,34 @@ const AccountCard = ({ account, isActive = false, onClick }) => {
   return (
     <div
       onClick={onClick}
-      className={`card cursor-pointer transition-all duration-200 ${
-        isActive ? 'border-[#d4ff00] bg-[#2a2a2a]' : 'hover:border-[#444444]'
-      }`}
+      className={`card cursor-pointer transition-all duration-200`}
+      style={{
+        borderColor: isActive ? 'var(--accent-primary)' : undefined,
+        backgroundColor: isActive ? 'var(--bg-tertiary)' : undefined
+      }}
     >
-      <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-medium text-[#888888]">{account.name}</h3>
-        <div className="text-3xl font-bold text-white">
+      <div className="flex flex-col gap-1">
+        <h3 className="text-xs font-medium uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>
+          {account.name}
+        </h3>
+        <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
           ${account.currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
-        <div className="text-sm">
-          <span className="font-medium text-[#888888]">Current Balance</span>
-        </div>
-        <div className="flex items-center gap-2 mt-2">
-          <span className={`text-lg font-semibold ${isPositive ? 'text-[#00ff88]' : 'text-[#ff4444]'}`}>
-            {formatCurrency(pnl)}
+        <div className="flex items-center gap-2 mt-1">
+          <span 
+            className="text-sm font-semibold"
+            style={{ color: isPositive ? 'var(--accent-secondary)' : 'var(--accent-danger)' }}
+          >
+            {isPositive ? '+' : ''}{formatCurrency(pnl)}
           </span>
-          <span className={`text-sm ${isPositive ? 'text-[#00ff88]' : 'text-[#ff4444]'}`}>
-            {formatPercentage(pnlPercentage)}
+          <span 
+            className="text-xs px-1.5 py-0.5 rounded"
+            style={{ 
+              color: isPositive ? 'var(--accent-secondary)' : 'var(--accent-danger)',
+              backgroundColor: isPositive ? 'rgba(38, 166, 154, 0.15)' : 'rgba(239, 83, 80, 0.15)'
+            }}
+          >
+            {isPositive ? '+' : ''}{pnlPercentage}%
           </span>
         </div>
       </div>
