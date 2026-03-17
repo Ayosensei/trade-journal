@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { STORAGE_KEYS, DATA_VERSION } from "../utils/constants";
 
 const DataContext = createContext();
@@ -152,7 +153,9 @@ export const DataProvider = ({ children }) => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      toast.success("Data exported as JSON");
     } catch (error) {
+      toast.error("Export failed");
       console.error("Failed to export data:", error);
       throw error;
     }
@@ -205,7 +208,9 @@ export const DataProvider = ({ children }) => {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      toast.success("Trades exported as CSV");
     } catch (error) {
+      toast.error("CSV Export failed");
       console.error("Failed to export CSV:", error);
       throw error;
     }
@@ -257,8 +262,10 @@ export const DataProvider = ({ children }) => {
 
           // Reload page to apply changes
           window.location.reload();
+          toast.success("Data imported successfully");
           resolve();
         } catch (error) {
+          toast.error("Import failed: Invalid format");
           reject(error);
         }
       };
@@ -283,7 +290,9 @@ export const DataProvider = ({ children }) => {
 
       // Reload page
       window.location.reload();
+      toast.error("All data has been cleared");
     } catch (error) {
+      toast.error("Failed to clear data");
       console.error("Failed to clear data:", error);
       throw error;
     }
