@@ -179,6 +179,58 @@ export const getEquityCurveData = (trades, initialBalance = 0) => {
 };
 
 /**
+ * Get drawdown curve data for charting
+ * @param {Array} trades - Array of trade objects
+ * @param {number} initialBalance - Starting account balance
+ * @returns {Array} Array of {date, drawdownPercent} objects
+ */
+export const getDrawdownCurveData = (trades, initialBalance = 0) => {
+  if (!trades || trades.length === 0) {
+    return [{ date: new Date().toISOString(), drawdown: 0 }];
+  }
+
+  const sortedTrades = [...trades].sort(
+    (a, b) => new Date(a.date) - new Date(b.date),
+  );
+
+  let runningBalance = initialBalance;
+  let peak = initialBalance;
+  const drawdownData = [{ date: sortedTrades[0].date, drawdown: 0 }];
+
+  sortedTrades.forEach((trade) => {
+    runningBalance += trade.pnl || 0;
+    if (runningBalance > peak) {
+      peak = runningBalance;
+    }
+
+    const drawdownAmount = peak - runningBalance;
+    const drawdownPercent = peak > 0 ? (drawdownAmount / peak) * 100 : 0;
+
+    drawdownData.push({
+      date: trade.date,
+      drawdown: parseFloat(drawdownPercent.toFixed(2)),
+    });
+  });
+
+  return drawdownData;
+};
+
+/**
+ * Get calendar heatmap data
+ * @param {Array} trades - Array of trade objects
+ * @returns {Object} { date: pnl } mapping
+ */
+export const getCalendarHeatmapData = (trades) => {
+  if (!trades || trades.length === 0) return {};
+
+  return trades.reduce((acc, trade) => {
+    const date = trade.date.split("T")[0];
+    acc[date] = (acc[date] || 0) + (trade.pnl || 0);
+    return acc;
+  }, {});
+};
+
+/**
  * Format currency value
  * @param {number} value - Numeric value
  * @returns {string} Formatted currency string
