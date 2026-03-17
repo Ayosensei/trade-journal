@@ -1,12 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { STORAGE_KEYS, DATA_VERSION } from '../utils/constants';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { STORAGE_KEYS, DATA_VERSION } from "../utils/constants";
 
 const DataContext = createContext();
 
 export const useData = () => {
   const context = useContext(DataContext);
   if (!context) {
-    throw new Error('useData must be used within a DataProvider');
+    throw new Error("useData must be used within a DataProvider");
   }
   return context;
 };
@@ -16,9 +16,12 @@ export const DataProvider = ({ children }) => {
 
   // Auto-backup every 5 minutes
   useEffect(() => {
-    const interval = setInterval(() => {
-      createBackup();
-    }, 5 * 60 * 1000); // 5 minutes
+    const interval = setInterval(
+      () => {
+        createBackup();
+      },
+      5 * 60 * 1000,
+    ); // 5 minutes
 
     return () => clearInterval(interval);
   }, []);
@@ -52,7 +55,7 @@ export const DataProvider = ({ children }) => {
       // Keep only last 5 backups
       cleanOldBackups();
     } catch (error) {
-      console.error('Failed to create backup:', error);
+      console.error("Failed to create backup:", error);
     }
   };
 
@@ -62,15 +65,15 @@ export const DataProvider = ({ children }) => {
       if (backups.length > 5) {
         // Sort by timestamp (oldest first)
         backups.sort((a, b) => a.timestamp - b.timestamp);
-        
+
         // Remove oldest backups
         const toRemove = backups.slice(0, backups.length - 5);
-        toRemove.forEach(backup => {
+        toRemove.forEach((backup) => {
           localStorage.removeItem(backup.key);
         });
       }
     } catch (error) {
-      console.error('Failed to clean old backups:', error);
+      console.error("Failed to clean old backups:", error);
     }
   };
 
@@ -79,7 +82,7 @@ export const DataProvider = ({ children }) => {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith(STORAGE_KEYS.BACKUP_PREFIX)) {
-        const timestamp = parseInt(key.replace(STORAGE_KEYS.BACKUP_PREFIX, ''));
+        const timestamp = parseInt(key.replace(STORAGE_KEYS.BACKUP_PREFIX, ""));
         backups.push({ key, timestamp });
       }
     }
@@ -90,25 +93,32 @@ export const DataProvider = ({ children }) => {
     try {
       const backupKey = `${STORAGE_KEYS.BACKUP_PREFIX}${timestamp}`;
       const backupData = localStorage.getItem(backupKey);
-      
+
       if (!backupData) {
-        throw new Error('Backup not found');
+        throw new Error("Backup not found");
       }
 
       const data = JSON.parse(backupData);
 
       // Restore all data
-      if (data.accounts) localStorage.setItem(STORAGE_KEYS.ACCOUNTS, data.accounts);
+      if (data.accounts)
+        localStorage.setItem(STORAGE_KEYS.ACCOUNTS, data.accounts);
       if (data.trades) localStorage.setItem(STORAGE_KEYS.TRADES, data.trades);
-      if (data.customPairs) localStorage.setItem(STORAGE_KEYS.CUSTOM_PAIRS, data.customPairs);
-      if (data.selectedAccount) localStorage.setItem(STORAGE_KEYS.SELECTED_ACCOUNT, data.selectedAccount);
-      if (data.journalEntries) localStorage.setItem(STORAGE_KEYS.JOURNAL_ENTRIES, data.journalEntries);
+      if (data.customPairs)
+        localStorage.setItem(STORAGE_KEYS.CUSTOM_PAIRS, data.customPairs);
+      if (data.selectedAccount)
+        localStorage.setItem(
+          STORAGE_KEYS.SELECTED_ACCOUNT,
+          data.selectedAccount,
+        );
+      if (data.journalEntries)
+        localStorage.setItem(STORAGE_KEYS.JOURNAL_ENTRIES, data.journalEntries);
       if (data.goals) localStorage.setItem(STORAGE_KEYS.GOALS, data.goals);
 
       // Reload page to apply changes
       window.location.reload();
     } catch (error) {
-      console.error('Failed to restore backup:', error);
+      console.error("Failed to restore backup:", error);
       throw error;
     }
   };
@@ -118,18 +128,24 @@ export const DataProvider = ({ children }) => {
       const exportData = {
         version: DATA_VERSION,
         exportDate: new Date().toISOString(),
-        accounts: JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]'),
-        trades: JSON.parse(localStorage.getItem(STORAGE_KEYS.TRADES) || '[]'),
-        customPairs: JSON.parse(localStorage.getItem(STORAGE_KEYS.CUSTOM_PAIRS) || '[]'),
+        accounts: JSON.parse(
+          localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || "[]",
+        ),
+        trades: JSON.parse(localStorage.getItem(STORAGE_KEYS.TRADES) || "[]"),
+        customPairs: JSON.parse(
+          localStorage.getItem(STORAGE_KEYS.CUSTOM_PAIRS) || "[]",
+        ),
         selectedAccount: localStorage.getItem(STORAGE_KEYS.SELECTED_ACCOUNT),
-        journalEntries: JSON.parse(localStorage.getItem(STORAGE_KEYS.JOURNAL_ENTRIES) || '[]'),
-        goals: JSON.parse(localStorage.getItem(STORAGE_KEYS.GOALS) || '[]'),
+        journalEntries: JSON.parse(
+          localStorage.getItem(STORAGE_KEYS.JOURNAL_ENTRIES) || "[]",
+        ),
+        goals: JSON.parse(localStorage.getItem(STORAGE_KEYS.GOALS) || "[]"),
       };
 
       const dataStr = JSON.stringify(exportData, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const dataBlob = new Blob([dataStr], { type: "application/json" });
       const url = URL.createObjectURL(dataBlob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `trade-journal-export-${Date.now()}.json`;
       document.body.appendChild(link);
@@ -137,7 +153,60 @@ export const DataProvider = ({ children }) => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Failed to export data:', error);
+      console.error("Failed to export data:", error);
+      throw error;
+    }
+  };
+
+  const exportToCSV = () => {
+    try {
+      const trades = JSON.parse(
+        localStorage.getItem(STORAGE_KEYS.TRADES) || "[]",
+      );
+      if (trades.length === 0) {
+        throw new Error("No trades to export");
+      }
+
+      const headers = [
+        "id",
+        "date",
+        "asset",
+        "direction",
+        "entryPrice",
+        "exitPrice",
+        "stopLoss",
+        "takeProfit",
+        "positionSize",
+        "pnl",
+        "outcome",
+        "strategy",
+        "notes",
+      ];
+
+      const csvRows = [];
+      csvRows.push(headers.join(","));
+
+      for (const trade of trades) {
+        const values = headers.map((header) => {
+          const val = trade[header] !== undefined ? trade[header] : "";
+          const escaped = ("" + val).replace(/"/g, '""');
+          return escaped.includes(",") ? `"${escaped}"` : escaped;
+        });
+        csvRows.push(values.join(","));
+      }
+
+      const csvString = csvRows.join("\n");
+      const dataBlob = new Blob([csvString], { type: "text/csv" });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `trade-journal-trades-${Date.now()}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to export CSV:", error);
       throw error;
     }
   };
@@ -145,28 +214,46 @@ export const DataProvider = ({ children }) => {
   const importData = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      
+
       reader.onload = (e) => {
         try {
           const importedData = JSON.parse(e.target.result);
 
           // Validate data structure
           if (!importedData.version || !importedData.accounts) {
-            throw new Error('Invalid data format');
+            throw new Error("Invalid data format");
           }
 
           // Create backup before importing
           createBackup();
 
           // Import data
-          localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(importedData.accounts));
-          localStorage.setItem(STORAGE_KEYS.TRADES, JSON.stringify(importedData.trades || []));
-          localStorage.setItem(STORAGE_KEYS.CUSTOM_PAIRS, JSON.stringify(importedData.customPairs || []));
+          localStorage.setItem(
+            STORAGE_KEYS.ACCOUNTS,
+            JSON.stringify(importedData.accounts),
+          );
+          localStorage.setItem(
+            STORAGE_KEYS.TRADES,
+            JSON.stringify(importedData.trades || []),
+          );
+          localStorage.setItem(
+            STORAGE_KEYS.CUSTOM_PAIRS,
+            JSON.stringify(importedData.customPairs || []),
+          );
           if (importedData.selectedAccount) {
-            localStorage.setItem(STORAGE_KEYS.SELECTED_ACCOUNT, importedData.selectedAccount);
+            localStorage.setItem(
+              STORAGE_KEYS.SELECTED_ACCOUNT,
+              importedData.selectedAccount,
+            );
           }
-          localStorage.setItem(STORAGE_KEYS.JOURNAL_ENTRIES, JSON.stringify(importedData.journalEntries || []));
-          localStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(importedData.goals || []));
+          localStorage.setItem(
+            STORAGE_KEYS.JOURNAL_ENTRIES,
+            JSON.stringify(importedData.journalEntries || []),
+          );
+          localStorage.setItem(
+            STORAGE_KEYS.GOALS,
+            JSON.stringify(importedData.goals || []),
+          );
 
           // Reload page to apply changes
           window.location.reload();
@@ -176,7 +263,7 @@ export const DataProvider = ({ children }) => {
         }
       };
 
-      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.onerror = () => reject(new Error("Failed to read file"));
       reader.readAsText(file);
     });
   };
@@ -197,7 +284,7 @@ export const DataProvider = ({ children }) => {
       // Reload page
       window.location.reload();
     } catch (error) {
-      console.error('Failed to clear data:', error);
+      console.error("Failed to clear data:", error);
       throw error;
     }
   };
@@ -207,6 +294,7 @@ export const DataProvider = ({ children }) => {
     getAllBackups,
     restoreBackup,
     exportData,
+    exportToCSV,
     importData,
     clearAllData,
     lastBackupTime,

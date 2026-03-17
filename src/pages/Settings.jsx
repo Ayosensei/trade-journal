@@ -1,23 +1,49 @@
-import React, { useState, useRef } from 'react';
-import { Palette, Database, Bell, Shield, Download, Upload, User, DollarSign, Save } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext.jsx';
-import { useAuth } from '../context/AuthContext.jsx';
-import { useData } from '../context/DataContext.jsx';
-import { useTradeContext } from '../context/TradeContext.jsx';
-import ConfirmDialog from '../components/ui/ConfirmDialog.jsx';
+import React, { useState, useRef } from "react";
+import {
+  Palette,
+  Database,
+  Bell,
+  Shield,
+  Download,
+  Upload,
+  User,
+  DollarSign,
+  Save,
+} from "lucide-react";
+import { useTheme } from "../context/ThemeContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
+import { useData } from "../context/DataContext.jsx";
+import { useTradeContext } from "../context/TradeContext.jsx";
+import ConfirmDialog from "../components/ui/ConfirmDialog.jsx";
 
 const Settings = () => {
   const { currentTheme, switchTheme, availableThemes } = useTheme();
   const { isAuthenticated, user, login, logout } = useAuth();
-  const { exportData, importData, clearAllData, getAllBackups, restoreBackup } = useData();
-  const { selectedAccount, updateAccountBalance, accounts, addAccount, deleteAccount } = useTradeContext();
+  const {
+    exportData,
+    exportToCSV,
+    importData,
+    clearAllData,
+    getAllBackups,
+    restoreBackup,
+    lastBackupTime,
+  } = useData();
+  const {
+    selectedAccount,
+    updateAccountBalance,
+    accounts,
+    addAccount,
+    deleteAccount,
+  } = useTradeContext();
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
   const [selectedBackup, setSelectedBackup] = useState(null);
-  const [newBalance, setNewBalance] = useState(selectedAccount?.initialBalance || 0);
-  const [loginUsername, setLoginUsername] = useState('');
-  const [newAccountName, setNewAccountName] = useState('');
+  const [newBalance, setNewBalance] = useState(
+    selectedAccount?.initialBalance || 0,
+  );
+  const [loginUsername, setLoginUsername] = useState("");
+  const [newAccountName, setNewAccountName] = useState("");
   const [newAccountBalance, setNewAccountBalance] = useState(0);
   const fileInputRef = useRef(null);
 
@@ -27,7 +53,15 @@ const Settings = () => {
     try {
       exportData();
     } catch (error) {
-      alert('Failed to export data: ' + error.message);
+      alert("Failed to export data: " + error.message);
+    }
+  };
+
+  const handleExportCSV = () => {
+    try {
+      exportToCSV();
+    } catch (error) {
+      alert("Failed to export CSV: " + error.message);
     }
   };
 
@@ -37,10 +71,10 @@ const Settings = () => {
 
     importData(file)
       .then(() => {
-        alert('Data imported successfully!');
+        alert("Data imported successfully!");
       })
       .catch((error) => {
-        alert('Failed to import data: ' + error.message);
+        alert("Failed to import data: " + error.message);
       });
   };
 
@@ -48,40 +82,42 @@ const Settings = () => {
     try {
       clearAllData();
     } catch (error) {
-      alert('Failed to clear data: ' + error.message);
+      alert("Failed to clear data: " + error.message);
     }
     setShowClearConfirm(false);
   };
 
   const handleRestoreBackup = () => {
     if (!selectedBackup) return;
-    
+
     try {
       restoreBackup(selectedBackup);
     } catch (error) {
-      alert('Failed to restore backup: ' + error.message);
+      alert("Failed to restore backup: " + error.message);
     }
     setShowRestoreConfirm(false);
   };
 
   const handleUpdateBalance = () => {
     if (!selectedAccount) return;
-    
+
     const balance = parseFloat(newBalance);
     if (isNaN(balance) || balance < 0) {
-      alert('Please enter a valid balance');
+      alert("Please enter a valid balance");
       return;
     }
 
     updateAccountBalance(selectedAccount.id, balance);
-    alert('Account balance updated successfully!');
+    alert("Account balance updated successfully!");
   };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-white mb-2">Settings</h2>
-        <p className="text-gray-400">Customize your trading journal experience</p>
+        <p className="text-gray-400">
+          Customize your trading journal experience
+        </p>
       </div>
 
       <div className="grid gap-6">
@@ -91,21 +127,25 @@ const Settings = () => {
             <User className="text-white" size={24} />
             <h3 className="text-xl font-semibold text-white">Account</h3>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white font-medium">
-                {isAuthenticated ? `Logged in as ${user?.username || 'Trader'}` : 'Not logged in'}
+                {isAuthenticated
+                  ? `Logged in as ${user?.username || "Trader"}`
+                  : "Not logged in"}
               </p>
               <p className="text-sm text-gray-400 mt-1">
-                {isAuthenticated ? 'You have access to all features' : 'Login to save your data'}
+                {isAuthenticated
+                  ? "You have access to all features"
+                  : "Login to save your data"}
               </p>
             </div>
             <button
               onClick={isAuthenticated ? logout : () => login(loginUsername)}
-              className={isAuthenticated ? 'btn-secondary' : 'btn-primary'}
+              className={isAuthenticated ? "btn-secondary" : "btn-primary"}
             >
-              {isAuthenticated ? 'Logout' : 'Login'}
+              {isAuthenticated ? "Logout" : "Login"}
             </button>
           </div>
           {!isAuthenticated && (
@@ -126,19 +166,25 @@ const Settings = () => {
           <div className="card">
             <div className="flex items-center gap-3 mb-6">
               <DollarSign className="text-white" size={24} />
-              <h3 className="text-xl font-semibold text-white">Account Balance</h3>
+              <h3 className="text-xl font-semibold text-white">
+                Account Balance
+              </h3>
             </div>
-            
+
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-400 mb-2">Current Account: {selectedAccount.name}</p>
+                <p className="text-sm text-gray-400 mb-2">
+                  Current Account: {selectedAccount.name}
+                </p>
                 <p className="text-2xl font-bold text-white mb-4">
                   ${selectedAccount.currentBalance.toLocaleString()}
                 </p>
               </div>
 
               <div>
-                <label className="block text-white mb-2">Adjust Starting Balance</label>
+                <label className="block text-white mb-2">
+                  Adjust Starting Balance
+                </label>
                 <div className="flex gap-3">
                   <input
                     type="number"
@@ -156,7 +202,8 @@ const Settings = () => {
                   </button>
                 </div>
                 <p className="text-sm text-gray-400 mt-2">
-                  This will adjust your starting balance and recalculate your current balance accordingly.
+                  This will adjust your starting balance and recalculate your
+                  current balance accordingly.
                 </p>
               </div>
             </div>
@@ -166,14 +213,23 @@ const Settings = () => {
         {/* Account List & Add Account */}
         {accounts && accounts.length > 0 && (
           <div className="card">
-            <h3 className="text-xl font-semibold text-white mb-4">Manage Accounts</h3>
+            <h3 className="text-xl font-semibold text-white mb-4">
+              Manage Accounts
+            </h3>
             <div className="space-y-4">
               <div className="space-y-2">
-                {accounts.map(acc => (
-                  <div key={acc.id} className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/10">
+                {accounts.map((acc) => (
+                  <div
+                    key={acc.id}
+                    className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/10"
+                  >
                     <div>
-                      <span className="text-white font-medium block">{acc.name}</span>
-                      <span className="text-sm text-gray-400">${acc.currentBalance.toLocaleString()}</span>
+                      <span className="text-white font-medium block">
+                        {acc.name}
+                      </span>
+                      <span className="text-sm text-gray-400">
+                        ${acc.currentBalance.toLocaleString()}
+                      </span>
                     </div>
                     {accounts.length > 1 && (
                       <button
@@ -194,21 +250,26 @@ const Settings = () => {
                     type="text"
                     placeholder="Account Name"
                     value={newAccountName}
-                    onChange={e => setNewAccountName(e.target.value)}
+                    onChange={(e) => setNewAccountName(e.target.value)}
                     className="input flex-1"
                   />
                   <input
                     type="number"
                     placeholder="Initial Balance"
                     value={newAccountBalance}
-                    onChange={e => setNewAccountBalance(parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      setNewAccountBalance(parseFloat(e.target.value) || 0)
+                    }
                     className="input w-32"
                   />
                   <button
                     onClick={() => {
                       if (newAccountName.trim()) {
-                        addAccount({ name: newAccountName, initialBalance: newAccountBalance });
-                        setNewAccountName('');
+                        addAccount({
+                          name: newAccountName,
+                          initialBalance: newAccountBalance,
+                        });
+                        setNewAccountName("");
                         setNewAccountBalance(0);
                       }
                     }}
@@ -228,7 +289,7 @@ const Settings = () => {
             <Palette className="text-white" size={24} />
             <h3 className="text-xl font-semibold text-white">Theme</h3>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {availableThemes.map((theme) => (
               <button
@@ -236,8 +297,8 @@ const Settings = () => {
                 onClick={() => switchTheme(theme.id)}
                 className={`p-4 rounded-lg border-2 transition-all duration-200 ${
                   currentTheme === theme.id
-                    ? 'border-white/40 bg-white/10'
-                    : 'border-white/10 bg-white/5 hover:border-white/20'
+                    ? "border-white/40 bg-white/10"
+                    : "border-white/10 bg-white/5 hover:border-white/20"
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
@@ -269,17 +330,31 @@ const Settings = () => {
         <div className="card">
           <div className="flex items-center gap-3 mb-6">
             <Database className="text-white" size={24} />
-            <h3 className="text-xl font-semibold text-white">Data Management</h3>
+            <h3 className="text-xl font-semibold text-white">
+              Data Management
+            </h3>
           </div>
-          
+
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {lastBackupTime && (
+              <p className="text-sm text-gray-400">
+                Last auto-backup: {lastBackupTime.toLocaleString()}
+              </p>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <button
                 onClick={handleExport}
                 className="btn-secondary flex items-center justify-center gap-2"
               >
                 <Download size={18} />
-                Export Data
+                Export JSON
+              </button>
+              <button
+                onClick={handleExportCSV}
+                className="btn-secondary flex items-center justify-center gap-2"
+              >
+                <Download size={18} />
+                Export CSV
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -300,7 +375,9 @@ const Settings = () => {
             {/* Backups */}
             {backups.length > 0 && (
               <div>
-                <h4 className="text-white font-semibold mb-3">Recent Backups</h4>
+                <h4 className="text-white font-semibold mb-3">
+                  Recent Backups
+                </h4>
                 <div className="space-y-2">
                   {backups.slice(0, 5).map((backup) => (
                     <div
@@ -327,7 +404,9 @@ const Settings = () => {
 
             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
               <p className="text-sm text-red-400">
-                <strong>Warning:</strong> Clearing data will permanently delete all your trades, accounts, journal entries, and goals. A backup will be created automatically.
+                <strong>Warning:</strong> Clearing data will permanently delete
+                all your trades, accounts, journal entries, and goals. A backup
+                will be created automatically.
               </p>
               <button
                 onClick={() => setShowClearConfirm(true)}
@@ -345,11 +424,15 @@ const Settings = () => {
             <Bell className="text-white" size={24} />
             <h3 className="text-xl font-semibold text-white">Notifications</h3>
           </div>
-          
+
           <div className="space-y-4">
             <label className="flex items-center justify-between">
               <span className="text-white">Trade reminders</span>
-              <input type="checkbox" className="w-5 h-5 rounded" defaultChecked />
+              <input
+                type="checkbox"
+                className="w-5 h-5 rounded"
+                defaultChecked
+              />
             </label>
             <label className="flex items-center justify-between">
               <span className="text-white">Daily journal reminders</span>
@@ -357,7 +440,11 @@ const Settings = () => {
             </label>
             <label className="flex items-center justify-between">
               <span className="text-white">Goal achievements</span>
-              <input type="checkbox" className="w-5 h-5 rounded" defaultChecked />
+              <input
+                type="checkbox"
+                className="w-5 h-5 rounded"
+                defaultChecked
+              />
             </label>
           </div>
         </div>
