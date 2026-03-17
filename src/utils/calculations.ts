@@ -1,9 +1,11 @@
+import { Trade, Direction, Outcome } from "../types";
+
 /**
  * Calculate profit/loss for a trade
- * @param {Object} trade - Trade object
+ * @param {Trade} trade - Trade object
  * @returns {number} P/L amount
  */
-export const calculatePnL = (trade) => {
+export const calculatePnL = (trade: Trade): number => {
   if (!trade.entryPrice || !trade.positionSize) {
     return 0;
   }
@@ -51,10 +53,10 @@ export const calculatePnL = (trade) => {
 
 /**
  * Calculate risk-reward ratio
- * @param {Object} trade - Trade object
- * @returns {number} R:R ratio
+ * @param {Partial<Trade>} trade - Trade object
+ * @returns {string | number} R:R ratio
  */
-export const calculateRiskReward = (trade) => {
+export const calculateRiskReward = (trade: Partial<Trade>): string | number => {
   if (!trade.entryPrice || !trade.stopLoss || !trade.takeProfit) {
     return 0;
   }
@@ -76,11 +78,11 @@ export const calculateRiskReward = (trade) => {
 
 /**
  * Calculate win rate from trades
- * @param {Array} trades - Array of trade objects
- * @returns {number} Win rate percentage
+ * @param {Trade[]} trades - Array of trade objects
+ * @returns {string} Win rate percentage
  */
-export const calculateWinRate = (trades) => {
-  if (!trades || trades.length === 0) return 0;
+export const calculateWinRate = (trades: Trade[]): string => {
+  if (!trades || trades.length === 0) return "0";
 
   const wins = trades.filter((t) => t.outcome === "Win").length;
   return ((wins / trades.length) * 100).toFixed(1);
@@ -88,10 +90,10 @@ export const calculateWinRate = (trades) => {
 
 /**
  * Calculate average win amount
- * @param {Array} trades - Array of trade objects
+ * @param {Trade[]} trades - Array of trade objects
  * @returns {number} Average win
  */
-export const calculateAverageWin = (trades) => {
+export const calculateAverageWin = (trades: Trade[]): number => {
   if (!trades || trades.length === 0) return 0;
 
   const winningTrades = trades.filter((t) => t.outcome === "Win");
@@ -103,10 +105,10 @@ export const calculateAverageWin = (trades) => {
 
 /**
  * Calculate average loss amount
- * @param {Array} trades - Array of trade objects
+ * @param {Trade[]} trades - Array of trade objects
  * @returns {number} Average loss
  */
-export const calculateAverageLoss = (trades) => {
+export const calculateAverageLoss = (trades: Trade[]): number => {
   if (!trades || trades.length === 0) return 0;
 
   const losingTrades = trades.filter((t) => t.outcome === "Loss");
@@ -121,10 +123,10 @@ export const calculateAverageLoss = (trades) => {
 
 /**
  * Calculate net P/L from all trades
- * @param {Array} trades - Array of trade objects
+ * @param {Trade[]} trades - Array of trade objects
  * @returns {number} Total P/L
  */
-export const calculateNetPnL = (trades) => {
+export const calculateNetPnL = (trades: Trade[]): number => {
   if (!trades || trades.length === 0) return 0;
 
   return trades.reduce((sum, t) => sum + (t.pnl || 0), 0);
@@ -132,36 +134,36 @@ export const calculateNetPnL = (trades) => {
 
 /**
  * Calculate average risk-reward ratio
- * @param {Array} trades - Array of trade objects
- * @returns {number} Average R:R
+ * @param {Trade[]} trades - Array of trade objects
+ * @returns {string} Average R:R
  */
-export const calculateAverageRR = (trades) => {
-  if (!trades || trades.length === 0) return 0;
+export const calculateAverageRR = (trades: Trade[]): string => {
+  if (!trades || trades.length === 0) return "0.00";
 
   const validTrades = trades.filter((t) => t.riskReward && t.riskReward > 0);
-  if (validTrades.length === 0) return 0;
+  if (validTrades.length === 0) return "0.00";
 
-  const totalRR = validTrades.reduce(
-    (sum, t) => sum + parseFloat(t.riskReward),
-    0,
-  );
+  const totalRR = validTrades.reduce((sum, t) => sum + (t.riskReward || 0), 0);
   return (totalRR / validTrades.length).toFixed(2);
 };
 
 /**
  * Get equity curve data for charting
- * @param {Array} trades - Array of trade objects
+ * @param {Trade[]} trades - Array of trade objects
  * @param {number} initialBalance - Starting account balance
  * @returns {Array} Array of {date, balance} objects
  */
-export const getEquityCurveData = (trades, initialBalance = 0) => {
+export const getEquityCurveData = (
+  trades: Trade[],
+  initialBalance: number = 0,
+): { date: string; balance: number }[] => {
   if (!trades || trades.length === 0) {
     return [{ date: new Date().toISOString(), balance: initialBalance }];
   }
 
   // Sort trades by date
   const sortedTrades = [...trades].sort(
-    (a, b) => new Date(a.date) - new Date(b.date),
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   let runningBalance = initialBalance;
@@ -180,17 +182,20 @@ export const getEquityCurveData = (trades, initialBalance = 0) => {
 
 /**
  * Get drawdown curve data for charting
- * @param {Array} trades - Array of trade objects
+ * @param {Trade[]} trades - Array of trade objects
  * @param {number} initialBalance - Starting account balance
  * @returns {Array} Array of {date, drawdownPercent} objects
  */
-export const getDrawdownCurveData = (trades, initialBalance = 0) => {
+export const getDrawdownCurveData = (
+  trades: Trade[],
+  initialBalance: number = 0,
+): { date: string; drawdown: number }[] => {
   if (!trades || trades.length === 0) {
     return [{ date: new Date().toISOString(), drawdown: 0 }];
   }
 
   const sortedTrades = [...trades].sort(
-    (a, b) => new Date(a.date) - new Date(b.date),
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   let runningBalance = initialBalance;
@@ -217,17 +222,22 @@ export const getDrawdownCurveData = (trades, initialBalance = 0) => {
 
 /**
  * Get calendar heatmap data
- * @param {Array} trades - Array of trade objects
+ * @param {Trade[]} trades - Array of trade objects
  * @returns {Object} { date: pnl } mapping
  */
-export const getCalendarHeatmapData = (trades) => {
+export const getCalendarHeatmapData = (
+  trades: Trade[],
+): Record<string, number> => {
   if (!trades || trades.length === 0) return {};
 
-  return trades.reduce((acc, trade) => {
-    const date = trade.date.split("T")[0];
-    acc[date] = (acc[date] || 0) + (trade.pnl || 0);
-    return acc;
-  }, {});
+  return trades.reduce(
+    (acc, trade) => {
+      const date = trade.date.split("T")[0];
+      acc[date] = (acc[date] || 0) + (trade.pnl || 0);
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 };
 
 /**
@@ -235,7 +245,7 @@ export const getCalendarHeatmapData = (trades) => {
  * @param {number} value - Numeric value
  * @returns {string} Formatted currency string
  */
-export const formatCurrency = (value) => {
+export const formatCurrency = (value: number): string => {
   if (value === null || value === undefined) return "$0.00";
 
   const formatted = Math.abs(value).toFixed(2);
@@ -249,7 +259,7 @@ export const formatCurrency = (value) => {
  * @param {number} value - Numeric value
  * @returns {string} Formatted percentage string
  */
-export const formatPercentage = (value) => {
+export const formatPercentage = (value: number): string => {
   if (value === null || value === undefined) return "0%";
 
   const sign = value >= 0 ? "+" : "";
@@ -258,14 +268,16 @@ export const formatPercentage = (value) => {
 
 /**
  * Calculate current win/loss streak
- * @param {Array} trades - Array of trade objects
- * @returns {Object} {type: 'win'|'loss', count: number}
+ * @param {Trade[]} trades - Array of trade objects
+ * @returns {Object} {type: 'win'|'loss'|'none', count: number}
  */
-export const calculateCurrentStreak = (trades) => {
+export const calculateCurrentStreak = (
+  trades: Trade[],
+): { type: "win" | "loss" | "none"; count: number } => {
   if (!trades || trades.length === 0) return { type: "none", count: 0 };
 
   const sortedTrades = [...trades].sort(
-    (a, b) => new Date(b.date) - new Date(a.date),
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
   const lastOutcome = sortedTrades[0].outcome;
 
@@ -279,37 +291,40 @@ export const calculateCurrentStreak = (trades) => {
   }
 
   return {
-    type: lastOutcome === "Win" ? "win" : "loss",
+    type:
+      lastOutcome === "Win" ? "win" : lastOutcome === "Loss" ? "loss" : "none",
     count,
   };
 };
 
 /**
  * Calculate profit factor
- * @param {Array} trades - Array of trade objects
- * @returns {number} Profit factor
+ * @param {Trade[]} trades - Array of trade objects
+ * @returns {string} Profit factor
  */
-export const calculateProfitFactor = (trades) => {
-  if (!trades || trades.length === 0) return 0;
+export const calculateProfitFactor = (trades: Trade[]): string => {
+  if (!trades || trades.length === 0) return "0.00";
 
   const grossProfit = trades
     .filter((t) => t.pnl > 0)
-    .reduce((sum, t) => sum + t.pnl, 0);
+    .reduce((sum, t) => sum + (t.pnl || 0), 0);
 
   const grossLoss = Math.abs(
-    trades.filter((t) => t.pnl < 0).reduce((sum, t) => sum + t.pnl, 0),
+    trades
+      .filter((t) => (t.pnl || 0) < 0)
+      .reduce((sum, t) => sum + (t.pnl || 0), 0),
   );
 
-  return grossLoss > 0 ? (grossProfit / grossLoss).toFixed(2) : 0;
+  return grossLoss > 0 ? (grossProfit / grossLoss).toFixed(2) : "0.00";
 };
 
 /**
  * Calculate expectancy
- * @param {Array} trades - Array of trade objects
- * @returns {number} Expectancy per trade
+ * @param {Trade[]} trades - Array of trade objects
+ * @returns {string} Expectancy per trade
  */
-export const calculateExpectancy = (trades) => {
-  if (!trades || trades.length === 0) return 0;
+export const calculateExpectancy = (trades: Trade[]): string => {
+  if (!trades || trades.length === 0) return "0.00";
 
   const winRate = parseFloat(calculateWinRate(trades)) / 100;
   const avgWin = calculateAverageWin(trades);
@@ -320,15 +335,19 @@ export const calculateExpectancy = (trades) => {
 
 /**
  * Calculate maximum drawdown
- * @param {Array} trades - Array of trade objects
+ * @param {Trade[]} trades - Array of trade objects
  * @param {number} initialBalance - Starting balance
- * @returns {Object} {amount: number, percentage: number}
+ * @returns {Object} {amount: string, percentage: string}
  */
-export const calculateMaxDrawdown = (trades, initialBalance = 0) => {
-  if (!trades || trades.length === 0) return { amount: 0, percentage: 0 };
+export const calculateMaxDrawdown = (
+  trades: Trade[],
+  initialBalance: number = 0,
+): { amount: string; percentage: string } => {
+  if (!trades || trades.length === 0)
+    return { amount: "0.00", percentage: "0.00" };
 
   const sortedTrades = [...trades].sort(
-    (a, b) => new Date(a.date) - new Date(b.date),
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
 
   let peak = initialBalance;
@@ -362,13 +381,18 @@ export const calculateMaxDrawdown = (trades, initialBalance = 0) => {
 
 /**
  * Get monthly performance breakdown
- * @param {Array} trades - Array of trade objects
- * @returns {Array} Array of {month, pnl, trades, winRate}
+ * @param {Trade[]} trades - Array of trade objects
+ * @returns {Array} Array of {month, pnl, tradeCount, winRate}
  */
-export const getMonthlyPerformance = (trades) => {
+export const getMonthlyPerformance = (
+  trades: Trade[],
+): { month: string; pnl: number; tradeCount: number; winRate: string }[] => {
   if (!trades || trades.length === 0) return [];
 
-  const monthlyData = {};
+  const monthlyData: Record<
+    string,
+    { month: string; pnl: number; trades: Trade[] }
+  > = {};
 
   trades.forEach((trade) => {
     const date = new Date(trade.date);
@@ -398,10 +422,17 @@ export const getMonthlyPerformance = (trades) => {
 
 /**
  * Get weekday distribution
- * @param {Array} trades - Array of trade objects
- * @returns {Array} Array of {day, trades, pnl, winRate}
+ * @param {Trade[]} trades - Array of trade objects
+ * @returns {Array} Array of {day, tradeCount, pnl, winRate}
  */
-export const getWeekdayDistribution = (trades) => {
+export const getWeekdayDistribution = (
+  trades: Trade[],
+): {
+  day: string;
+  tradeCount: number;
+  pnl: string;
+  winRate: string | number;
+}[] => {
   if (!trades || trades.length === 0) return [];
 
   const weekdays = [
@@ -415,7 +446,7 @@ export const getWeekdayDistribution = (trades) => {
   ];
   const weekdayData = weekdays.map((day) => ({
     day,
-    trades: [],
+    trades: [] as Trade[],
     pnl: 0,
   }));
 
