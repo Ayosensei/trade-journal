@@ -333,6 +333,7 @@ export const calculateMaxDrawdown = (trades, initialBalance = 0) => {
 
   let peak = initialBalance;
   let maxDrawdown = 0;
+  let maxDrawdownPercent = 0;
   let currentBalance = initialBalance;
 
   sortedTrades.forEach((trade) => {
@@ -343,16 +344,19 @@ export const calculateMaxDrawdown = (trades, initialBalance = 0) => {
     }
 
     const drawdown = peak - currentBalance;
+    const drawdownPercent = peak > 0 ? (drawdown / peak) * 100 : 0;
+
     if (drawdown > maxDrawdown) {
       maxDrawdown = drawdown;
     }
+    if (drawdownPercent > maxDrawdownPercent) {
+      maxDrawdownPercent = drawdownPercent;
+    }
   });
-
-  const percentage = peak > 0 ? ((maxDrawdown / peak) * 100).toFixed(2) : 0;
 
   return {
     amount: maxDrawdown.toFixed(2),
-    percentage,
+    percentage: maxDrawdownPercent.toFixed(2),
   };
 };
 
