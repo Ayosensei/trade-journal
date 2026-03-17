@@ -4,16 +4,48 @@
  * @returns {number} P/L amount
  */
 export const calculatePnL = (trade) => {
-  if (!trade.entryPrice || !trade.exitPrice || !trade.positionSize) {
+  if (!trade.entryPrice || !trade.positionSize) {
     return 0;
   }
 
-  const { entryPrice, exitPrice, positionSize, direction } = trade;
-  
-  if (direction === 'Long') {
-    return (exitPrice - entryPrice) * positionSize;
+  const { entryPrice, positionSize, direction } = trade;
+
+  // Handle multiple exits if present
+  if (trade.exits && trade.exits.length > 0) {
+    let totalPnL = 0;
+    let totalExitPercentage = 0;
+
+    trade.exits.forEach((exit) => {
+      const portionSize = positionSize * (exit.percentage / 100);
+      const exitPnL =
+        direction === "Long"
+          ? (exit.price - entryPrice) * portionSize
+          : (entryPrice - exit.price) * portionSize;
+      totalPnL += exitPnL;
+      totalExitPercentage += exit.percentage;
+    });
+
+    // If there's a final exit price and some percentage left
+    const remainingPercentage = 100 - totalExitPercentage;
+    if (remainingPercentage > 0 && trade.exitPrice) {
+      const portionSize = positionSize * (remainingPercentage / 100);
+      const finalPnL =
+        direction === "Long"
+          ? (trade.exitPrice - entryPrice) * portionSize
+          : (entryPrice - trade.exitPrice) * portionSize;
+      totalPnL += finalPnL;
+    }
+
+    return totalPnL;
+  }
+
+  // Fallback to single exit price
+  if (!trade.exitPrice) return 0;
+
+  if (direction === "Long") {
+    return (trade.exitPrice - entryPrice) * positionSize;
   } else {
-    return (entryPrice - exitPrice) * positionSize;
+    return (entryPrice - trade.exitPrice) * positionSize;
   }
 };
 
@@ -28,17 +60,17 @@ export const calculateRiskReward = (trade) => {
   }
 
   const { entryPrice, stopLoss, takeProfit, direction } = trade;
-  
+
   let risk, reward;
-  
-  if (direction === 'Long') {
+
+  if (direction === "Long") {
     risk = Math.abs(entryPrice - stopLoss);
     reward = Math.abs(takeProfit - entryPrice);
   } else {
     risk = Math.abs(stopLoss - entryPrice);
     reward = Math.abs(entryPrice - takeProfit);
   }
-  
+
   return risk > 0 ? (reward / risk).toFixed(2) : 0;
 };
 
@@ -49,8 +81,8 @@ export const calculateRiskReward = (trade) => {
  */
 export const calculateWinRate = (trades) => {
   if (!trades || trades.length === 0) return 0;
-  
-  const wins = trades.filter(t => t.outcome === 'Win').length;
+
+  const wins = trades.filter((t) => t.outcome === "Win").length;
   return ((wins / trades.length) * 100).toFixed(1);
 };
 
@@ -61,10 +93,10 @@ export const calculateWinRate = (trades) => {
  */
 export const calculateAverageWin = (trades) => {
   if (!trades || trades.length === 0) return 0;
-  
-  const winningTrades = trades.filter(t => t.outcome === 'Win');
+
+  const winningTrades = trades.filter((t) => t.outcome === "Win");
   if (winningTrades.length === 0) return 0;
-  
+
   const totalWins = winningTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
   return totalWins / winningTrades.length;
 };
@@ -76,11 +108,14 @@ export const calculateAverageWin = (trades) => {
  */
 export const calculateAverageLoss = (trades) => {
   if (!trades || trades.length === 0) return 0;
-  
-  const losingTrades = trades.filter(t => t.outcome === 'Loss');
+
+  const losingTrades = trades.filter((t) => t.outcome === "Loss");
   if (losingTrades.length === 0) return 0;
-  
-  const totalLosses = losingTrades.reduce((sum, t) => sum + Math.abs(t.pnl || 0), 0);
+
+  const totalLosses = losingTrades.reduce(
+    (sum, t) => sum + Math.abs(t.pnl || 0),
+    0,
+  );
   return totalLosses / losingTrades.length;
 };
 
@@ -91,7 +126,7 @@ export const calculateAverageLoss = (trades) => {
  */
 export const calculateNetPnL = (trades) => {
   if (!trades || trades.length === 0) return 0;
-  
+
   return trades.reduce((sum, t) => sum + (t.pnl || 0), 0);
 };
 
@@ -102,11 +137,14 @@ export const calculateNetPnL = (trades) => {
  */
 export const calculateAverageRR = (trades) => {
   if (!trades || trades.length === 0) return 0;
-  
-  const validTrades = trades.filter(t => t.riskReward && t.riskReward > 0);
+
+  const validTrades = trades.filter((t) => t.riskReward && t.riskReward > 0);
   if (validTrades.length === 0) return 0;
-  
-  const totalRR = validTrades.reduce((sum, t) => sum + parseFloat(t.riskReward), 0);
+
+  const totalRR = validTrades.reduce(
+    (sum, t) => sum + parseFloat(t.riskReward),
+    0,
+  );
   return (totalRR / validTrades.length).toFixed(2);
 };
 
@@ -120,21 +158,23 @@ export const getEquityCurveData = (trades, initialBalance = 0) => {
   if (!trades || trades.length === 0) {
     return [{ date: new Date().toISOString(), balance: initialBalance }];
   }
-  
+
   // Sort trades by date
-  const sortedTrades = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
-  
+  const sortedTrades = [...trades].sort(
+    (a, b) => new Date(a.date) - new Date(b.date),
+  );
+
   let runningBalance = initialBalance;
   const curveData = [{ date: sortedTrades[0].date, balance: initialBalance }];
-  
-  sortedTrades.forEach(trade => {
+
+  sortedTrades.forEach((trade) => {
     runningBalance += trade.pnl || 0;
     curveData.push({
       date: trade.date,
       balance: runningBalance,
     });
   });
-  
+
   return curveData;
 };
 
@@ -144,12 +184,12 @@ export const getEquityCurveData = (trades, initialBalance = 0) => {
  * @returns {string} Formatted currency string
  */
 export const formatCurrency = (value) => {
-  if (value === null || value === undefined) return '$0.00';
-  
+  if (value === null || value === undefined) return "$0.00";
+
   const formatted = Math.abs(value).toFixed(2);
-  const sign = value >= 0 ? '+' : '-';
-  
-  return `${sign}$${formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+  const sign = value >= 0 ? "+" : "-";
+
+  return `${sign}$${formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 };
 
 /**
@@ -158,9 +198,9 @@ export const formatCurrency = (value) => {
  * @returns {string} Formatted percentage string
  */
 export const formatPercentage = (value) => {
-  if (value === null || value === undefined) return '0%';
-  
-  const sign = value >= 0 ? '+' : '';
+  if (value === null || value === undefined) return "0%";
+
+  const sign = value >= 0 ? "+" : "";
   return `${sign}${value}%`;
 };
 
@@ -170,11 +210,13 @@ export const formatPercentage = (value) => {
  * @returns {Object} {type: 'win'|'loss', count: number}
  */
 export const calculateCurrentStreak = (trades) => {
-  if (!trades || trades.length === 0) return { type: 'none', count: 0 };
-  
-  const sortedTrades = [...trades].sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (!trades || trades.length === 0) return { type: "none", count: 0 };
+
+  const sortedTrades = [...trades].sort(
+    (a, b) => new Date(b.date) - new Date(a.date),
+  );
   const lastOutcome = sortedTrades[0].outcome;
-  
+
   let count = 0;
   for (const trade of sortedTrades) {
     if (trade.outcome === lastOutcome) {
@@ -183,10 +225,10 @@ export const calculateCurrentStreak = (trades) => {
       break;
     }
   }
-  
+
   return {
-    type: lastOutcome === 'Win' ? 'win' : 'loss',
-    count
+    type: lastOutcome === "Win" ? "win" : "loss",
+    count,
   };
 };
 
@@ -197,15 +239,15 @@ export const calculateCurrentStreak = (trades) => {
  */
 export const calculateProfitFactor = (trades) => {
   if (!trades || trades.length === 0) return 0;
-  
+
   const grossProfit = trades
-    .filter(t => t.pnl > 0)
+    .filter((t) => t.pnl > 0)
     .reduce((sum, t) => sum + t.pnl, 0);
-    
-  const grossLoss = Math.abs(trades
-    .filter(t => t.pnl < 0)
-    .reduce((sum, t) => sum + t.pnl, 0));
-  
+
+  const grossLoss = Math.abs(
+    trades.filter((t) => t.pnl < 0).reduce((sum, t) => sum + t.pnl, 0),
+  );
+
   return grossLoss > 0 ? (grossProfit / grossLoss).toFixed(2) : 0;
 };
 
@@ -216,12 +258,12 @@ export const calculateProfitFactor = (trades) => {
  */
 export const calculateExpectancy = (trades) => {
   if (!trades || trades.length === 0) return 0;
-  
+
   const winRate = parseFloat(calculateWinRate(trades)) / 100;
   const avgWin = calculateAverageWin(trades);
   const avgLoss = calculateAverageLoss(trades);
-  
-  return ((winRate * avgWin) - ((1 - winRate) * avgLoss)).toFixed(2);
+
+  return (winRate * avgWin - (1 - winRate) * avgLoss).toFixed(2);
 };
 
 /**
@@ -232,31 +274,33 @@ export const calculateExpectancy = (trades) => {
  */
 export const calculateMaxDrawdown = (trades, initialBalance = 0) => {
   if (!trades || trades.length === 0) return { amount: 0, percentage: 0 };
-  
-  const sortedTrades = [...trades].sort((a, b) => new Date(a.date) - new Date(b.date));
-  
+
+  const sortedTrades = [...trades].sort(
+    (a, b) => new Date(a.date) - new Date(b.date),
+  );
+
   let peak = initialBalance;
   let maxDrawdown = 0;
   let currentBalance = initialBalance;
-  
-  sortedTrades.forEach(trade => {
+
+  sortedTrades.forEach((trade) => {
     currentBalance += trade.pnl || 0;
-    
+
     if (currentBalance > peak) {
       peak = currentBalance;
     }
-    
+
     const drawdown = peak - currentBalance;
     if (drawdown > maxDrawdown) {
       maxDrawdown = drawdown;
     }
   });
-  
+
   const percentage = peak > 0 ? ((maxDrawdown / peak) * 100).toFixed(2) : 0;
-  
+
   return {
     amount: maxDrawdown.toFixed(2),
-    percentage
+    percentage,
   };
 };
 
@@ -267,13 +311,13 @@ export const calculateMaxDrawdown = (trades, initialBalance = 0) => {
  */
 export const getMonthlyPerformance = (trades) => {
   if (!trades || trades.length === 0) return [];
-  
+
   const monthlyData = {};
-  
-  trades.forEach(trade => {
+
+  trades.forEach((trade) => {
     const date = new Date(trade.date);
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+
     if (!monthlyData[monthKey]) {
       monthlyData[monthKey] = {
         month: monthKey,
@@ -281,17 +325,19 @@ export const getMonthlyPerformance = (trades) => {
         trades: [],
       };
     }
-    
+
     monthlyData[monthKey].pnl += trade.pnl || 0;
     monthlyData[monthKey].trades.push(trade);
   });
-  
-  return Object.values(monthlyData).map(month => ({
-    month: month.month,
-    pnl: month.pnl,
-    tradeCount: month.trades.length,
-    winRate: calculateWinRate(month.trades),
-  })).sort((a, b) => a.month.localeCompare(b.month));
+
+  return Object.values(monthlyData)
+    .map((month) => ({
+      month: month.month,
+      pnl: month.pnl,
+      tradeCount: month.trades.length,
+      winRate: calculateWinRate(month.trades),
+    }))
+    .sort((a, b) => a.month.localeCompare(b.month));
 };
 
 /**
@@ -301,25 +347,34 @@ export const getMonthlyPerformance = (trades) => {
  */
 export const getWeekdayDistribution = (trades) => {
   if (!trades || trades.length === 0) return [];
-  
-  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const weekdayData = weekdays.map(day => ({
+
+  const weekdays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const weekdayData = weekdays.map((day) => ({
     day,
     trades: [],
     pnl: 0,
   }));
-  
-  trades.forEach(trade => {
+
+  trades.forEach((trade) => {
     const dayIndex = new Date(trade.date).getDay();
     weekdayData[dayIndex].trades.push(trade);
     weekdayData[dayIndex].pnl += trade.pnl || 0;
   });
-  
-  return weekdayData.map(day => ({
-    day: day.day,
-    tradeCount: day.trades.length,
-    pnl: day.pnl.toFixed(2),
-    winRate: day.trades.length > 0 ? calculateWinRate(day.trades) : 0,
-  })).filter(day => day.tradeCount > 0);
-};
 
+  return weekdayData
+    .map((day) => ({
+      day: day.day,
+      tradeCount: day.trades.length,
+      pnl: day.pnl.toFixed(2),
+      winRate: day.trades.length > 0 ? calculateWinRate(day.trades) : 0,
+    }))
+    .filter((day) => day.tradeCount > 0);
+};

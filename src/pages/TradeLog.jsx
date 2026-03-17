@@ -1,36 +1,46 @@
-import React, { useState } from 'react';
-import { Search, Download, TrendingUp, TrendingDown, Edit2, Trash2, MoreVertical } from 'lucide-react';
-import { useTradeContext } from '../context/TradeContext';
-import { formatCurrency } from '../utils/calculations';
-import ConfirmDialog from '../components/ui/ConfirmDialog';
+import React, { useState } from "react";
+import {
+  Search,
+  Download,
+  TrendingUp,
+  TrendingDown,
+  Edit2,
+  Trash2,
+  MoreVertical,
+} from "lucide-react";
+import { useTradeContext } from "../context/TradeContext";
+import { formatCurrency } from "../utils/calculations";
+import ConfirmDialog from "../components/ui/ConfirmDialog";
 
 const TradeLog = ({ onEditTrade }) => {
   const { getAccountTrades, deleteTrade } = useTradeContext();
   const allTrades = getAccountTrades();
-  
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterOutcome, setFilterOutcome] = useState('all');
-  const [sortBy, setSortBy] = useState('date');
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterOutcome, setFilterOutcome] = useState("all");
+  const [sortBy, setSortBy] = useState("date");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [tradeToDelete, setTradeToDelete] = useState(null);
 
   // Filter and sort trades
-  let filteredTrades = allTrades.filter(trade => {
-    const matchesSearch = trade.asset?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         trade.notes?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterOutcome === 'all' || trade.outcome === filterOutcome;
+  let filteredTrades = allTrades.filter((trade) => {
+    const matchesSearch =
+      trade.asset?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      trade.notes?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter =
+      filterOutcome === "all" || trade.outcome === filterOutcome;
     return matchesSearch && matchesFilter;
   });
 
   // Sort trades
   filteredTrades = [...filteredTrades].sort((a, b) => {
     switch (sortBy) {
-      case 'date':
+      case "date":
         return new Date(b.date) - new Date(a.date);
-      case 'pnl':
+      case "pnl":
         return (b.pnl || 0) - (a.pnl || 0);
-      case 'pair':
-        return (a.asset || '').localeCompare(b.asset || '');
+      case "pair":
+        return (a.asset || "").localeCompare(b.asset || "");
       default:
         return 0;
     }
@@ -52,8 +62,15 @@ const TradeLog = ({ onEditTrade }) => {
   return (
     <div className="max-w-7xl mx-auto px-6 py-6">
       <div className="mb-6">
-        <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Trade Log</h2>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Complete history of all your trades</p>
+        <h2
+          className="text-xl font-bold mb-1"
+          style={{ color: "var(--text-primary)" }}
+        >
+          Trade Log
+        </h2>
+        <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+          Complete history of all your trades
+        </p>
       </div>
 
       {/* Filters and Search */}
@@ -61,7 +78,11 @@ const TradeLog = ({ onEditTrade }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2" size={16} style={{ color: 'var(--text-muted)' }} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2"
+              size={16}
+              style={{ color: "var(--text-muted)" }}
+            />
             <input
               type="text"
               placeholder="Search trades..."
@@ -105,29 +126,66 @@ const TradeLog = ({ onEditTrade }) => {
       {/* Stats Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
         <div className="card py-4">
-          <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Total Trades</p>
-          <p className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{filteredTrades.length}</p>
-        </div>
-        <div className="card py-4">
-          <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Wins</p>
-          <p className="text-xl font-bold" style={{ color: 'var(--accent-secondary)' }}>
-            {filteredTrades.filter(t => t.outcome === 'Win').length}
+          <p
+            className="text-xs mb-1"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Total Trades
+          </p>
+          <p
+            className="text-xl font-bold"
+            style={{ color: "var(--text-primary)" }}
+          >
+            {filteredTrades.length}
           </p>
         </div>
         <div className="card py-4">
-          <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Losses</p>
-          <p className="text-xl font-bold" style={{ color: 'var(--accent-danger)' }}>
-            {filteredTrades.filter(t => t.outcome === 'Loss').length}
+          <p
+            className="text-xs mb-1"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Wins
+          </p>
+          <p
+            className="text-xl font-bold"
+            style={{ color: "var(--accent-secondary)" }}
+          >
+            {filteredTrades.filter((t) => t.outcome === "Win").length}
           </p>
         </div>
         <div className="card py-4">
-          <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>Total P/L</p>
-          <p className={`text-xl font-bold`} style={{
-            color: filteredTrades.reduce((sum, t) => sum + (t.pnl || 0), 0) >= 0 
-              ? 'var(--accent-secondary)' 
-              : 'var(--accent-danger)'
-          }}>
-            {formatCurrency(filteredTrades.reduce((sum, t) => sum + (t.pnl || 0), 0))}
+          <p
+            className="text-xs mb-1"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Losses
+          </p>
+          <p
+            className="text-xl font-bold"
+            style={{ color: "var(--accent-danger)" }}
+          >
+            {filteredTrades.filter((t) => t.outcome === "Loss").length}
+          </p>
+        </div>
+        <div className="card py-4">
+          <p
+            className="text-xs mb-1"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            Total P/L
+          </p>
+          <p
+            className={`text-xl font-bold`}
+            style={{
+              color:
+                filteredTrades.reduce((sum, t) => sum + (t.pnl || 0), 0) >= 0
+                  ? "var(--accent-secondary)"
+                  : "var(--accent-danger)",
+            }}
+          >
+            {formatCurrency(
+              filteredTrades.reduce((sum, t) => sum + (t.pnl || 0), 0),
+            )}
           </p>
         </div>
       </div>
@@ -140,35 +198,40 @@ const TradeLog = ({ onEditTrade }) => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
-                      {trade.asset || 'Unknown Pair'}
+                    <h3
+                      className="text-base font-semibold"
+                      style={{ color: "var(--text-primary)" }}
+                    >
+                      {trade.asset || "Unknown Pair"}
                     </h3>
-                    <span 
+                    <span
                       className="px-2 py-0.5 rounded text-xs font-medium"
                       style={{
-                        backgroundColor: trade.outcome === 'Win' 
-                          ? 'rgba(38, 166, 154, 0.15)' 
-                          : trade.outcome === 'Loss'
-                          ? 'rgba(239, 83, 80, 0.15)'
-                          : 'rgba(120, 123, 134, 0.15)',
-                        color: trade.outcome === 'Win'
-                          ? 'var(--accent-secondary)'
-                          : trade.outcome === 'Loss'
-                          ? 'var(--accent-danger)'
-                          : 'var(--text-secondary)'
+                        backgroundColor:
+                          trade.outcome === "Win"
+                            ? "rgba(38, 166, 154, 0.15)"
+                            : trade.outcome === "Loss"
+                              ? "rgba(239, 83, 80, 0.15)"
+                              : "rgba(120, 123, 134, 0.15)",
+                        color:
+                          trade.outcome === "Win"
+                            ? "var(--accent-secondary)"
+                            : trade.outcome === "Loss"
+                              ? "var(--accent-danger)"
+                              : "var(--text-secondary)",
                       }}
                     >
                       {trade.outcome}
                     </span>
-                    <span 
+                    <span
                       className="px-2 py-0.5 rounded text-xs font-medium"
                       style={{
-                        backgroundColor: trade.direction === 'Long' 
-                          ? 'rgba(41, 98, 255, 0.15)' 
-                          : 'rgba(156, 39, 176, 0.15)',
-                        color: trade.direction === 'Long'
-                          ? '#2962ff'
-                          : '#ab47bc'
+                        backgroundColor:
+                          trade.direction === "Long"
+                            ? "rgba(41, 98, 255, 0.15)"
+                            : "rgba(156, 39, 176, 0.15)",
+                        color:
+                          trade.direction === "Long" ? "#2962ff" : "#ab47bc",
                       }}
                     >
                       {trade.direction}
@@ -177,31 +240,102 @@ const TradeLog = ({ onEditTrade }) => {
 
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                     <div>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Entry</p>
-                      <p className="font-medium" style={{ color: 'var(--text-primary)' }}>${trade.entryPrice || 0}</p>
+                      <p
+                        className="text-xs"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        Entry
+                      </p>
+                      <p
+                        className="font-medium"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        ${trade.entryPrice || 0}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Exit</p>
-                      <p className="font-medium" style={{ color: 'var(--text-primary)' }}>${trade.exitPrice || 0}</p>
+                      <p
+                        className="text-xs"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        Exit
+                      </p>
+                      <p
+                        className="font-medium"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {trade.exits && trade.exits.length > 0
+                          ? `${trade.exits.length} Exits`
+                          : trade.exitPrice
+                            ? `$${trade.exitPrice}`
+                            : "N/A"}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Lot Size</p>
-                      <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{trade.positionSize || 0}</p>
+                      <p
+                        className="text-xs"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        Lot Size
+                      </p>
+                      <p
+                        className="font-medium"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {trade.positionSize || 0}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>R:R</p>
-                      <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{trade.riskReward || 0}R</p>
+                      <p
+                        className="text-xs"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        R:R
+                      </p>
+                      <p
+                        className="font-medium"
+                        style={{ color: "var(--text-primary)" }}
+                      >
+                        {trade.riskReward || 0}R
+                      </p>
                     </div>
                     <div>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Date</p>
-                      <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                      <p
+                        className="text-xs"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        Date
+                      </p>
+                      <p
+                        className="font-medium"
+                        style={{ color: "var(--text-primary)" }}
+                      >
                         {new Date(trade.date).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
 
+                  {trade.tags && trade.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-3">
+                      {trade.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/5 border border-white/10 text-gray-400"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
                   {trade.notes && (
-                    <div className="mt-3 p-2 rounded text-sm" style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }}>
+                    <div
+                      className="mt-3 p-2 rounded text-sm"
+                      style={{
+                        backgroundColor: "var(--bg-tertiary)",
+                        color: "var(--text-secondary)",
+                      }}
+                    >
                       {trade.notes}
                     </div>
                   )}
@@ -210,25 +344,37 @@ const TradeLog = ({ onEditTrade }) => {
                 <div className="ml-4 flex flex-col items-end gap-2">
                   <div className="flex items-center gap-1">
                     {(trade.pnl || 0) >= 0 ? (
-                      <TrendingUp size={18} style={{ color: 'var(--accent-secondary)' }} />
+                      <TrendingUp
+                        size={18}
+                        style={{ color: "var(--accent-secondary)" }}
+                      />
                     ) : (
-                      <TrendingDown size={18} style={{ color: 'var(--accent-danger)' }} />
+                      <TrendingDown
+                        size={18}
+                        style={{ color: "var(--accent-danger)" }}
+                      />
                     )}
-                    <p className="text-lg font-bold" style={{
-                      color: (trade.pnl || 0) >= 0 ? 'var(--accent-secondary)' : 'var(--accent-danger)'
-                    }}>
+                    <p
+                      className="text-lg font-bold"
+                      style={{
+                        color:
+                          (trade.pnl || 0) >= 0
+                            ? "var(--accent-secondary)"
+                            : "var(--accent-danger)",
+                      }}
+                    >
                       {formatCurrency(trade.pnl || 0)}
                     </p>
                   </div>
-                  
+
                   {/* Edit/Delete Buttons */}
                   <div className="flex gap-1">
                     <button
                       onClick={() => onEditTrade(trade)}
                       className="p-2 rounded transition-colors"
-                      style={{ 
-                        backgroundColor: 'var(--bg-tertiary)',
-                        color: 'var(--text-secondary)'
+                      style={{
+                        backgroundColor: "var(--bg-tertiary)",
+                        color: "var(--text-secondary)",
                       }}
                       title="Edit trade"
                     >
@@ -237,9 +383,9 @@ const TradeLog = ({ onEditTrade }) => {
                     <button
                       onClick={() => handleDeleteClick(trade)}
                       className="p-2 rounded transition-colors"
-                      style={{ 
-                        backgroundColor: 'rgba(239, 83, 80, 0.1)',
-                        color: 'var(--accent-danger)'
+                      style={{
+                        backgroundColor: "rgba(239, 83, 80, 0.1)",
+                        color: "var(--accent-danger)",
                       }}
                       title="Delete trade"
                     >
@@ -252,7 +398,9 @@ const TradeLog = ({ onEditTrade }) => {
           ))
         ) : (
           <div className="card text-center py-12">
-            <p style={{ color: 'var(--text-secondary)' }}>No trades found matching your filters</p>
+            <p style={{ color: "var(--text-secondary)" }}>
+              No trades found matching your filters
+            </p>
           </div>
         )}
       </div>
@@ -261,7 +409,7 @@ const TradeLog = ({ onEditTrade }) => {
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         title="Delete Trade"
-        message={`Are you sure you want to delete this ${tradeToDelete?.asset || ''} trade? This action cannot be undone.`}
+        message={`Are you sure you want to delete this ${tradeToDelete?.asset || ""} trade? This action cannot be undone.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => {
           setShowDeleteConfirm(false);
