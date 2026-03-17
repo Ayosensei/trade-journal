@@ -1,42 +1,59 @@
-import React from 'react';
+import React from "react";
 
-const Select = ({ 
+/**
+ * Select Component - Technical Minimalist Design
+ * Implements high-precision dropdown menus with custom technical styling.
+ */
+const Select = ({
   label,
   value,
   onChange,
   options = [],
   required = false,
   disabled = false,
-  className = '',
+  className = "",
   error,
-  placeholder = 'Select an option',
+  placeholder = "Select an option",
   ...props
 }) => {
   return (
-    <div className="flex flex-col gap-1 w-full">
+    <div className="flex flex-col w-full group">
       {label && (
-        <label className="text-sm font-medium text-[#888888]">
-          {label} {required && <span className="text-[#ff4444]">*</span>}
+        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 group-focus-within:text-blue-500 transition-colors mb-1.5 block">
+          {label}
+          {required && <span className="text-blue-500 ml-1 opacity-50">*</span>}
         </label>
       )}
-      <select
-        value={value}
-        onChange={onChange}
-        required={required}
-        disabled={disabled}
-        className={`select ${className} ${error ? 'border-[#ff4444]' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-        {...props}
-      >
-        <option value="" disabled>
-          {placeholder}
-        </option>
-        {options.map((option, index) => (
-          <option key={index} value={option.value || option}>
-            {option.label || option}
+      <div className="relative">
+        <select
+          value={value}
+          onChange={onChange}
+          required={required}
+          disabled={disabled}
+          className={`select ${className} ${
+            error ? "border-rose-500/50 ring-1 ring-rose-500/20" : ""
+          } ${disabled ? "opacity-20 cursor-not-allowed grayscale" : ""}`}
+          {...props}
+        >
+          <option value="" disabled className="bg-slate-900 text-slate-600">
+            {placeholder}
           </option>
-        ))}
-      </select>
-      {error && <span className="text-xs text-[#ff4444]">{error}</span>}
+          {options.map((option, index) => (
+            <option
+              key={index}
+              value={option.value || (typeof option === "string" ? option : "")}
+              className="bg-slate-900 text-slate-200 py-2"
+            >
+              {option.label || option}
+            </option>
+          ))}
+        </select>
+      </div>
+      {error && (
+        <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest mt-1.5 px-1">
+          Constraint_Violation // {error}
+        </span>
+      )}
     </div>
   );
 };

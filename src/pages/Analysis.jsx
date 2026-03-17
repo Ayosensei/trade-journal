@@ -1,16 +1,15 @@
 import React, { useMemo } from "react";
 import {
-  BarChart3,
   TrendingUp,
   TrendingDown,
   Clock,
-  DollarSign,
   Target,
   Zap,
   Activity,
-  Calendar,
   Layers,
-  BarChart as BarChartIcon,
+  Shield,
+  Cpu,
+  Globe,
 } from "lucide-react";
 import { useTradeContext } from "../context/TradeContext";
 import {
@@ -21,11 +20,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
   AreaChart,
   Area,
-  Legend,
 } from "recharts";
 import {
   calculateCurrentStreak,
@@ -40,91 +36,65 @@ import {
 } from "../utils/calculations";
 import CalendarHeatmap from "../components/charts/CalendarHeatmap";
 
+/**
+ * Analysis Page - Technical Intelligence Dashboard
+ * High-density modular layout with glassmorphism and technical minimalism.
+ */
 const Analysis = () => {
   const { getAccountTrades, selectedAccount } = useTradeContext();
   const trades = useMemo(() => getAccountTrades(), [getAccountTrades]);
-
   const initialBalance = selectedAccount?.initialBalance || 0;
 
-  // Memoized Calculations
-  const equityData = useMemo(
-    () => getEquityCurveData(trades, initialBalance),
-    [trades, initialBalance],
-  );
-  const drawdownData = useMemo(
-    () => getDrawdownCurveData(trades, initialBalance),
-    [trades, initialBalance],
-  );
+  // Analytical Data Aggregation
+  const equityData = useMemo(() => getEquityCurveData(trades, initialBalance), [trades, initialBalance]);
+  const drawdownData = useMemo(() => getDrawdownCurveData(trades, initialBalance), [trades, initialBalance]);
 
-  const pairPerformance = useMemo(() => {
-    return trades.reduce((acc, trade) => {
+  const pairData = useMemo(() => {
+    const performance = trades.reduce((acc, trade) => {
       const asset = trade.asset || "Unknown";
-      if (!acc[asset]) {
-        acc[asset] = { pair: asset, wins: 0, losses: 0, totalPnL: 0, count: 0 };
-      }
+      if (!acc[asset]) acc[asset] = { pair: asset, wins: 0, losses: 0, totalPnL: 0, count: 0 };
       acc[asset].count++;
       acc[asset].totalPnL += trade.pnl || 0;
       if (trade.outcome === "Win") acc[asset].wins++;
       else if (trade.outcome === "Loss") acc[asset].losses++;
       return acc;
     }, {});
+
+    return Object.values(performance)
+      .map((p) => ({
+        ...p,
+        winRate: p.count > 0 ? ((p.wins / p.count) * 100).toFixed(1) : "0.0"
+      }))
+      .sort((a, b) => b.totalPnL - a.totalPnL);
   }, [trades]);
 
-  const pairData = useMemo(
-    () =>
-      Object.values(pairPerformance)
-        .map((p) => ({
-          ...p,
-          winRate: p.count > 0 ? ((p.wins / p.count) * 100).toFixed(1) : 0,
-        }))
-        .sort((a, b) => b.totalPnL - a.totalPnL),
-    [pairPerformance],
-  );
-
   const hourlyData = useMemo(() => {
-    const data = Array.from({ length: 24 }, (_, i) => ({
-      hour: `${i}:00`,
-      trades: 0,
-      profit: 0,
-    }));
-
+    const data = Array.from({ length: 24 }, (_, i) => ({ hour: `${i}:00`, trades: 0 }));
     trades.forEach((trade) => {
       const hour = new Date(trade.date).getHours();
       data[hour].trades++;
-      data[hour].profit += trade.pnl || 0;
     });
-
     return data.filter((h) => h.trades > 0);
   }, [trades]);
 
-  const streak = useMemo(() => calculateCurrentStreak(trades), [trades]);
-  const profitFactor = useMemo(() => calculateProfitFactor(trades), [trades]);
-  const expectancy = useMemo(() => calculateExpectancy(trades), [trades]);
-  const maxDrawdown = useMemo(
-    () => calculateMaxDrawdown(trades, initialBalance),
-    [trades, initialBalance],
-  );
-  const monthlyPerformance = useMemo(
-    () => getMonthlyPerformance(trades),
-    [trades],
-  );
-  const weekdayDistribution = useMemo(
-    () => getWeekdayDistribution(trades),
-    [trades],
-  );
+  const metrics = useMemo(() => ({
+    streak: calculateCurrentStreak(trades),
+    profitFactor: calculateProfitFactor(trades),
+    expectancy: calculateExpectancy(trades),
+    maxDrawdown: calculateMaxDrawdown(trades, initialBalance),
+    monthly: getMonthlyPerformance(trades),
+    weekday: getWeekdayDistribution(trades),
+  }), [trades, initialBalance]);
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-slate-900 border border-white/10 p-3 rounded-lg shadow-xl">
-          <p className="text-xs text-gray-400 mb-1">
-            {new Date(label).toLocaleDateString()}
+        <div className="backdrop-blur-xl bg-slate-950/90 border border-white/10 p-3 rounded-lg shadow-2xl">
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
+            Temporal Node // {new Date(label).toLocaleDateString()}
           </p>
-          <p className="text-sm font-bold" style={{ color: payload[0].color }}>
-            {payload[0].name}:{" "}
-            {payload[0].name.includes("Drawdown")
-              ? `${payload[0].value}%`
-              : formatCurrency(payload[0].value)}
+          <p className="text-sm font-bold data-mono" style={{ color: payload[0].color }}>
+            {payload[0].name}: {payload[0].name.includes("Drawdown") ? `${payload[0].value}%` : formatCurrency(payload[0].value)}
           </p>
         </div>
       );
@@ -133,376 +103,264 @@ const Analysis = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold text-white mb-2">
-          Performance Intelligence
-        </h2>
-        <p className="text-gray-400">
-          Deep mathematical insights into your trading edge
-        </p>
-      </div>
-
-      {/* Primary Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card border-l-4 border-blue-500">
-          <div className="flex items-center gap-3 mb-2">
-            <BarChart3 className="text-blue-400" size={18} />
-            <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">
-              Total Trades
-            </span>
-          </div>
-          <p className="text-3xl font-bold text-white">{trades.length}</p>
-          <p className="text-xs text-gray-500 mt-1">Life-time executions</p>
-        </div>
-
-        <div className="card border-l-4 border-emerald-500">
-          <div className="flex items-center gap-3 mb-2">
-            <Zap
-              className={
-                streak.type === "win" ? "text-emerald-400" : "text-rose-400"
-              }
-              size={18}
-            />
-            <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">
-              Current Streak
-            </span>
-          </div>
-          <p
-            className={`text-3xl font-bold ${streak.type === "win" ? "text-emerald-400" : "text-rose-400"}`}
-          >
-            {streak.count} {streak.type === "win" ? "Wins" : "Losses"}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">Consecutive outcomes</p>
-        </div>
-
-        <div className="card border-l-4 border-purple-500">
-          <div className="flex items-center gap-3 mb-2">
-            <Target className="text-purple-400" size={18} />
-            <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">
-              Profit Factor
-            </span>
-          </div>
-          <p
-            className={`text-3xl font-bold ${profitFactor >= 2 ? "text-emerald-400" : profitFactor >= 1 ? "text-amber-400" : "text-rose-400"}`}
-          >
-            {profitFactor}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            Gross Gains / Gross Losses
+    <div className="max-w-7xl mx-auto px-6 py-8 space-y-6 pb-24">
+      {/* Header Intelligence Strip */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-6">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
+            <Cpu className="text-blue-500" size={20} />
+            Quant Intelligence
+          </h2>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+            Deep Analytics Protocol // Cluster_{selectedAccount?.id.slice(0,4).toUpperCase() || 'NULL'}
           </p>
         </div>
-
-        <div className="card border-l-4 border-amber-500">
-          <div className="flex items-center gap-3 mb-2">
-            <Activity className="text-amber-400" size={18} />
-            <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">
-              Expectancy
-            </span>
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col items-end">
+            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Global Status</span>
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-xs font-bold text-slate-300 data-mono uppercase">Node_Stable</span>
+            </div>
           </div>
-          <p
-            className={`text-3xl font-bold ${expectancy >= 0 ? "text-emerald-400" : "text-rose-400"}`}
-          >
-            ${expectancy}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">Average value per trade</p>
+          <div className="flex flex-col items-end">
+            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Encryption</span>
+            <span className="text-xs font-bold text-slate-300 data-mono uppercase tracking-tighter">AES-256_ACTIVE</span>
+          </div>
         </div>
       </div>
 
-      {/* Calendar Activity Section */}
-      <div className="card">
-        <div className="flex items-center gap-3 mb-6">
-          <Calendar className="text-blue-400" size={20} />
-          <h3 className="text-lg font-bold text-white">
-            Trading Activity Heatmap
-          </h3>
+      {/* KPI Grid - Minimalist High Contrast */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <AnalysisMetric
+          label="Execution Velocity"
+          value={trades.length}
+          icon={Activity}
+          sub="Total Trades"
+          accent="blue"
+        />
+        <AnalysisMetric
+          label="Alpha Streak"
+          value={`${metrics.streak.count} ${metrics.streak.type.toUpperCase()}`}
+          icon={Zap}
+          sub="Current Momentum"
+          accent={metrics.streak.type === 'win' ? 'emerald' : 'rose'}
+        />
+        <AnalysisMetric
+          label="Profit Factor"
+          value={metrics.profitFactor}
+          icon={Target}
+          sub="Efficiency Ratio"
+          accent={parseFloat(metrics.profitFactor) >= 1.5 ? 'emerald' : 'amber'}
+        />
+        <AnalysisMetric
+          label="Max Drawdown"
+          value={`${metrics.maxDrawdown.percentage}%`}
+          icon={TrendingDown}
+          sub="Risk Exposure"
+          accent="rose"
+        />
+      </div>
+
+      {/* Primary Visualizations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="card p-0 overflow-hidden group border-white/5 bg-slate-950/20">
+          <div className="p-6 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                <TrendingUp size={14} />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Equity Growth</span>
+            </div>
+            <span className="text-[9px] font-mono text-slate-600">SOURCE: RAW_LEDGER_DATA</span>
+          </div>
+          <div className="h-[280px] w-full p-6">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={equityData}>
+                <defs>
+                  <linearGradient id="anEquity" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)" vertical={false} />
+                <XAxis dataKey="date" hide />
+                <YAxis stroke="#475569" fontSize={9} fontFamily="JetBrains Mono" tickFormatter={(v) => `$${v}`} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area type="monotone" dataKey="balance" name="Equity" stroke="#10b981" strokeWidth={2} fill="url(#anEquity)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="card p-0 overflow-hidden group border-white/5 bg-slate-950/20">
+          <div className="p-6 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded bg-rose-500/10 text-rose-500 border border-rose-500/20">
+                <Shield size={14} />
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Risk Variance</span>
+            </div>
+            <span className="text-[9px] font-mono text-slate-600">TYPE: PEAK_TROUGH_DD</span>
+          </div>
+          <div className="h-[280px] w-full p-6">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={drawdownData}>
+                <defs>
+                  <linearGradient id="anDrawdown" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)" vertical={false} />
+                <XAxis dataKey="date" hide />
+                <YAxis stroke="#475569" fontSize={9} fontFamily="JetBrains Mono" reversed tickFormatter={(v) => `${v}%`} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area type="monotone" dataKey="drawdown" name="Drawdown" stroke="#f43f5e" strokeWidth={2} fill="url(#anDrawdown)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Activity Matrix Section */}
+      <div className="card relative overflow-hidden border-white/5 bg-slate-950/20">
+        <div className="absolute top-0 right-0 p-8 opacity-[0.02] pointer-events-none text-white">
+          <Globe size={160} />
         </div>
         <CalendarHeatmap trades={trades} />
       </div>
 
-      {/* Main Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Equity Curve */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-6">
+      {/* Asset Performance Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Pair Performance Table (High Density) */}
+        <div className="lg:col-span-2 card p-0 overflow-hidden border-white/5 bg-slate-950/20">
+          <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
             <div className="flex items-center gap-3">
-              <TrendingUp className="text-emerald-400" size={20} />
-              <h3 className="text-lg font-bold text-white">Equity Growth</h3>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-gray-500 font-bold uppercase">
-                Net Profit
-              </p>
-              <p
-                className={`text-sm font-bold ${equityData[equityData.length - 1]?.balance - initialBalance >= 0 ? "text-emerald-400" : "text-rose-400"}`}
-              >
-                {formatCurrency(
-                  equityData[equityData.length - 1]?.balance - initialBalance,
-                )}
-              </p>
+              <Layers size={14} className="text-blue-400" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Asset Matrix</span>
             </div>
           </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={equityData}>
-                <defs>
-                  <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#ffffff05"
-                  vertical={false}
-                />
-                <XAxis dataKey="date" hide />
-                <YAxis
-                  stroke="#64748b"
-                  fontSize={10}
-                  tickFormatter={(val) => `$${val / 1000}k`}
-                  domain={["auto", "auto"]}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="balance"
-                  name="Account Balance"
-                  stroke="#10b981"
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#colorBalance)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Drawdown Chart */}
-        <div className="card">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <TrendingDown className="text-rose-400" size={20} />
-              <h3 className="text-lg font-bold text-white">
-                Drawdown Exposure
-              </h3>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-gray-500 font-bold uppercase">
-                Max Drawdown
-              </p>
-              <p className="text-sm font-bold text-rose-400">
-                {maxDrawdown.percentage}%
-              </p>
-            </div>
-          </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={drawdownData}>
-                <defs>
-                  <linearGradient
-                    id="colorDrawdown"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#ffffff05"
-                  vertical={false}
-                />
-                <XAxis dataKey="date" hide />
-                <YAxis
-                  stroke="#64748b"
-                  fontSize={10}
-                  tickFormatter={(val) => `${val}%`}
-                  reversed
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="drawdown"
-                  name="Drawdown %"
-                  stroke="#f43f5e"
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#colorDrawdown)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* Asset Performance Table */}
-      <div className="card overflow-hidden">
-        <div className="flex items-center gap-3 mb-6">
-          <Layers className="text-blue-400" size={20} />
-          <h3 className="text-lg font-bold text-white">Performance by Asset</h3>
-        </div>
-        {pairData.length > 0 ? (
-          <div className="overflow-x-auto -mx-6">
-            <table className="w-full text-left">
+          <div className="overflow-x-auto">
+            <table className="w-full">
               <thead>
-                <tr className="border-b border-white/5 bg-white/5">
-                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-gray-400">
-                    Trading Pair
-                  </th>
-                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-gray-400 text-center">
-                    Executions
-                  </th>
-                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-gray-400 text-center">
-                    Win Rate
-                  </th>
-                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-gray-400 text-right">
-                    Net P/L
-                  </th>
+                <tr>
+                  <th className="table-header-cell text-left">Entity</th>
+                  <th className="table-header-cell text-center">Velocity</th>
+                  <th className="table-header-cell text-center">Accuracy</th>
+                  <th className="table-header-cell text-right">Net_Return</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
-                {pairData.map((pair, index) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-white/5 transition-colors group"
-                  >
-                    <td className="py-4 px-6">
-                      <div className="font-bold text-white group-hover:text-blue-400 transition-colors">
-                        {pair.pair}
-                      </div>
+              <tbody>
+                {pairData.length > 0 ? pairData.map((asset, i) => (
+                  <tr key={i} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="table-data-cell">
+                      <span className="font-bold text-white data-mono tracking-tighter uppercase">{asset.pair}</span>
                     </td>
-                    <td className="py-4 px-6 text-center text-gray-300 font-medium">
-                      {pair.count}
+                    <td className="table-data-cell text-center">
+                      <span className="text-slate-400 data-mono">{asset.count}</span>
                     </td>
-                    <td className="py-4 px-6">
-                      <div className="flex flex-col items-center gap-1">
-                        <span
-                          className={`text-sm font-bold ${pair.winRate >= 50 ? "text-emerald-400" : "text-rose-400"}`}
-                        >
-                          {pair.winRate}%
+                    <td className="table-data-cell">
+                      <div className="flex flex-col items-center gap-1.5">
+                        <span className={`text-[11px] font-black data-mono ${parseFloat(asset.winRate) >= 50 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          {asset.winRate}%
                         </span>
-                        <div className="w-20 h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div className="w-16 h-0.5 bg-slate-800 rounded-full overflow-hidden">
                           <div
-                            className={`h-full ${pair.winRate >= 50 ? "bg-emerald-500" : "bg-rose-500"}`}
-                            style={{ width: `${pair.winRate}%` }}
+                            className={`h-full ${parseFloat(asset.winRate) >= 50 ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                            style={{ width: `${asset.winRate}%` }}
                           />
                         </div>
                       </div>
                     </td>
-                    <td
-                      className={`py-4 px-6 text-right font-bold ${pair.totalPnL >= 0 ? "text-emerald-400" : "text-rose-400"}`}
-                    >
-                      {formatCurrency(pair.totalPnL)}
+                    <td className="table-data-cell text-right">
+                      <span className={`font-bold data-mono ${asset.totalPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {formatCurrency(asset.totalPnL)}
+                      </span>
                     </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan={4} className="py-12 text-center text-slate-600 text-xs uppercase tracking-widest">
+                      Null_Data_Set
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
-        ) : (
-          <div className="text-center py-12 text-gray-500">
-            No trade data recorded for this account.
-          </div>
-        )}
-      </div>
-
-      {/* Distribution Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Monthly Performance */}
-        <div className="card">
-          <div className="flex items-center gap-3 mb-6">
-            <BarChartIcon className="text-purple-400" size={20} />
-            <h3 className="text-lg font-bold text-white">Monthly Returns</h3>
-          </div>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyPerformance}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#ffffff05"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="month"
-                  stroke="#64748b"
-                  fontSize={10}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  stroke="#64748b"
-                  fontSize={10}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(val) => `$${val}`}
-                />
-                <Tooltip
-                  cursor={{ fill: "#ffffff05" }}
-                  contentStyle={{
-                    backgroundColor: "#0f172a",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "8px",
-                  }}
-                />
-                <Bar
-                  dataKey="pnl"
-                  radius={[4, 4, 0, 0]}
-                  fill={(entry) => (entry.pnl >= 0 ? "#10b981" : "#f43f5e")}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
         </div>
 
-        {/* Hourly Distribution */}
-        <div className="card">
-          <div className="flex items-center gap-3 mb-6">
-            <Clock className="text-amber-400" size={20} />
-            <h3 className="text-lg font-bold text-white">Execution by Hour</h3>
+        {/* Temporal Distribution (Small) */}
+        <div className="card p-0 overflow-hidden border-white/5 bg-slate-950/20">
+          <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+            <div className="flex items-center gap-3">
+              <Clock size={14} className="text-amber-400" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Node_Timing</span>
+            </div>
           </div>
-          <div className="h-[250px]">
+          <div className="p-6 h-[250px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={hourlyData}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#ffffff05"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="hour"
-                  stroke="#64748b"
-                  fontSize={10}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  stroke="#64748b"
-                  fontSize={10}
-                  axisLine={false}
-                  tickLine={false}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)" vertical={false} />
+                <XAxis dataKey="hour" stroke="#475569" fontSize={8} axisLine={false} tickLine={false} />
+                <YAxis hide domain={['auto', 'auto']} />
                 <Tooltip
-                  cursor={{ fill: "#ffffff05" }}
-                  contentStyle={{
-                    backgroundColor: "#0f172a",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "8px",
-                  }}
+                  cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+                  contentStyle={{ backgroundColor: '#020617', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
                 />
-                <Bar
-                  dataKey="trades"
-                  fill="#3b82f6"
-                  radius={[4, 4, 0, 0]}
-                  name="Number of Trades"
-                />
+                <Bar dataKey="trades" fill="#3b82f6" radius={[2, 2, 0, 0]} barSize={8} />
               </BarChart>
             </ResponsiveContainer>
           </div>
+          <div className="px-6 pb-6 pt-2">
+            <p className="text-[8px] font-bold text-slate-600 uppercase leading-relaxed">
+              Execution frequency distribution by hour. Data used to optimize trading window synchronization.
+            </p>
+          </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+// Sub-component for small high-precision metrics
+const AnalysisMetric = ({ label, value, icon: Icon, sub, accent }) => {
+  const accentStyles = {
+    blue: "border-blue-500/30 text-blue-400 bg-blue-500/10 dot-blue",
+    emerald: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10 dot-emerald",
+    rose: "border-rose-500/30 text-rose-400 bg-rose-500/10 dot-rose",
+    amber: "border-amber-500/30 text-amber-400 bg-amber-500/10 dot-amber",
+  };
+
+  const dotColors = {
+    blue: "bg-blue-500 shadow-blue-500/50",
+    emerald: "bg-emerald-500 shadow-emerald-500/50",
+    rose: "bg-rose-500 shadow-rose-500/50",
+    amber: "bg-amber-500 shadow-amber-500/50",
+  }
+
+  const currentStyle = accentStyles[accent] || accentStyles.blue;
+  const currentDot = dotColors[accent] || dotColors.blue;
+
+  return (
+    <div className={`card relative overflow-hidden group border-l-2 ${currentStyle.split(' ')[0]}`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className={`p-1.5 rounded border border-white/5 ${currentStyle.split(' ').slice(1, 3).join(' ')}`}>
+          <Icon size={12} />
+        </div>
+        <div className={`w-1 h-1 rounded-full ${currentDot} animate-pulse shadow-[0_0_8px]`} />
+      </div>
+      <div className="space-y-0.5">
+        <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-500 group-hover:text-slate-400 transition-colors">
+          {label}
+        </p>
+        <p className={`text-xl font-bold data-mono tracking-tighter text-white`}>
+          {value}
+        </p>
+        <p className="text-[8px] font-bold text-slate-600 uppercase tracking-tighter">
+          {sub}
+        </p>
       </div>
     </div>
   );

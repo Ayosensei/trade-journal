@@ -1,82 +1,167 @@
-import React from 'react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { format } from 'date-fns';
-import { formatCurrency } from '../../utils/calculations';
+import React from "react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
+import { format } from "date-fns";
+import { TrendingUp, Activity } from "lucide-react";
+import { formatCurrency } from "../../utils/calculations";
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-md p-3 border" style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-primary)' }}>
-        <p className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
-          {format(new Date(payload[0].payload.date), 'MMM dd, yyyy')}
+      <div className="backdrop-blur-xl bg-slate-950/80 border border-white/10 p-3 rounded-lg shadow-2xl">
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
+          Observation Log //{" "}
+          {format(new Date(payload[0].payload.date), "MMM dd, yyyy")}
         </p>
-        <p className="text-base font-semibold" style={{ color: 'var(--accent-secondary)' }}>
-          ${payload[0].value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </p>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+          <p className="text-sm font-bold text-white data-mono">
+            $
+            {payload[0].value.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </p>
+        </div>
       </div>
     );
   }
   return null;
 };
 
+/**
+ * EquityChart Component
+ * Visualizes account growth with high-precision technical aesthetics.
+ */
 const EquityChart = ({ data, currentPnL }) => {
   if (!data || data.length === 0) {
     return (
-      <div className="card h-[300px] flex items-center justify-center">
-        <p style={{ color: 'var(--text-muted)' }}>No trade data available</p>
+      <div className="card h-[300px] flex flex-col items-center justify-center border-dashed border-white/5 opacity-50">
+        <Activity size={32} className="text-slate-700 mb-2" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+          Insufficient Data for Projection
+        </p>
       </div>
     );
   }
 
   const isPositive = currentPnL >= 0;
-  const lineColor = isPositive ? '#26a69a' : '#ef5350';
+  const accentColor = isPositive ? "#10b981" : "#f43f5e";
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>Equity Curve</h3>
-        <div className="flex items-center gap-2">
-          <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Net P/L</span>
-          <span className="text-lg font-bold" style={{ color: lineColor }}>
+    <div className="card group relative overflow-hidden">
+      {/* Background Grid Pattern */}
+      <div className="absolute inset-0 bg-grid opacity-[0.03] pointer-events-none" />
+
+      <div className="relative z-10 flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400">
+            <TrendingUp size={16} />
+          </div>
+          <div>
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 group-hover:text-slate-400 transition-colors">
+              Equity Trajectory
+            </h3>
+            <p className="text-[8px] font-bold text-slate-600 uppercase tracking-tighter mt-0.5">
+              Cumulative Growth Analysis // Real-time
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-end">
+          <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">
+            Net Performance
+          </span>
+          <span
+            className={`text-lg font-bold data-mono tracking-tighter ${
+              isPositive
+                ? "text-emerald-400 text-glow-success"
+                : "text-rose-400 text-glow-danger"
+            }`}
+          >
+            {isPositive ? "+" : ""}
             {formatCurrency(currentPnL)}
           </span>
         </div>
       </div>
-      
-      <ResponsiveContainer width="100%" height={250}>
-        <AreaChart data={data}>
-          <defs>
-            <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={lineColor} stopOpacity={0.2} />
-              <stop offset="95%" stopColor={lineColor} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-secondary)" vertical={false} />
-          <XAxis 
-            dataKey="date" 
-            tickFormatter={(date) => format(new Date(date), 'MMM dd')}
-            stroke="var(--text-muted)"
-            tick={{ fontSize: 11 }}
-            axisLine={{ stroke: 'var(--border-secondary)' }}
-            tickLine={false}
-          />
-          <YAxis 
-            stroke="var(--text-muted)"
-            tick={{ fontSize: 11 }}
-            tickFormatter={(value) => `$${value.toLocaleString()}`}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Area 
-            type="monotone" 
-            dataKey="balance" 
-            stroke={lineColor} 
-            strokeWidth={2}
-            fill="url(#colorBalance)" 
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+
+      <div className="h-[280px] w-full relative z-10">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart
+            data={data}
+            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+          >
+            <defs>
+              <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={accentColor} stopOpacity={0.15} />
+                <stop offset="95%" stopColor={accentColor} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="rgba(255,255,255,0.03)"
+              vertical={false}
+            />
+            <XAxis dataKey="date" hide={true} />
+            <YAxis
+              stroke="rgba(255,255,255,0.15)"
+              fontSize={9}
+              fontFamily="JetBrains Mono"
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(value) =>
+                `$${value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}`
+              }
+              domain={["auto", "auto"]}
+            />
+            <Tooltip
+              content={<CustomTooltip />}
+              cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }}
+            />
+            <Area
+              type="monotone"
+              dataKey="balance"
+              stroke={accentColor}
+              strokeWidth={2}
+              fillOpacity={1}
+              fill="url(#colorEquity)"
+              animationDuration={1500}
+              // Technical glow effect on the line
+              style={{
+                filter: `drop-shadow(0 0 8px ${accentColor}44)`,
+              }}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Technical Footer Markers */}
+      <div className="mt-4 flex items-center justify-between opacity-30 border-t border-white/5 pt-4">
+        <div className="flex gap-4">
+          <div className="flex items-center gap-1.5">
+            <div className="w-1 h-1 bg-slate-500 rounded-full" />
+            <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">
+              Grid_Sync: Active
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-1 h-1 bg-slate-500 rounded-full" />
+            <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">
+              Precision: 64-bit
+            </span>
+          </div>
+        </div>
+        <span className="text-[8px] font-mono text-slate-600">
+          SECURE_ENCRYPTION_NODE_ALPHA
+        </span>
+      </div>
     </div>
   );
 };

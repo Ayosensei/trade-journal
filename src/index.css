@@ -1,282 +1,225 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* TradingView-inspired Theme Colors */
-    --bg-primary: #131722;
-    --bg-secondary: #1e222d;
-    --bg-tertiary: #2a2e39;
-    --accent-primary: #2962ff;
-    --accent-secondary: #26a69a;
-    --accent-danger: #ef5350;
-    --accent-warning: #ff9800;
-    --text-primary: #d1d4dc;
-    --text-secondary: #787b86;
-    --text-muted: #4a4e59;
-    --border-primary: #363a45;
-    --border-secondary: #2a2e39;
-    --gradient-start: #2962ff;
-    --gradient-end: #26a69a;
+    :root {
+        --bg-base: #020617;
+        --bg-glass: rgba(15, 23, 42, 0.65);
+        --bg-glass-hover: rgba(30, 41, 59, 0.8);
+        --border-glass: rgba(255, 255, 255, 0.08);
+        --border-glass-bright: rgba(255, 255, 255, 0.15);
 
-    /* Cursor tracking for subtle hover effect */
-    --cursor-x: 50%;
-    --cursor-y: 50%;
-  }
+        --accent-primary: #3b82f6;
+        --accent-success: #10b981;
+        --accent-danger: #f43f5e;
+        --accent-warning: #f59e0b;
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --text-muted: #475569;
 
-  body {
-    font-family:
-      "Inter",
-      system-ui,
-      -apple-system,
-      sans-serif;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    position: relative;
-    overflow-x: hidden;
-  }
+        --font-mono: "JetBrains Mono", monospace;
+        --font-sans: "Inter", sans-serif;
 
-  /* Subtle background gradient - reduced and darker */
-  body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background:
-      radial-gradient(
-        circle at var(--cursor-x) var(--cursor-y),
-        color-mix(in srgb, var(--accent-primary) 6%, transparent) 0%,
-        transparent 30%
-      ),
-      radial-gradient(
-        ellipse at 20% 80%,
-        color-mix(in srgb, var(--accent-primary) 4%, transparent) 0%,
-        transparent 35%
-      ),
-      radial-gradient(
-        ellipse at 80% 20%,
-        color-mix(in srgb, var(--accent-secondary) 4%, transparent) 0%,
-        transparent 35%
-      );
-    animation: gradientShift 20s ease infinite;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  @keyframes gradientShift {
-    0%,
-    100% {
-      opacity: 1;
+        --cursor-x: 50%;
+        --cursor-y: 50%;
     }
-    50% {
-      opacity: 0.7;
-    }
-  }
 
-  #root {
-    min-height: 100vh;
-    position: relative;
-    z-index: 1;
-  }
+    * {
+        @apply border-slate-800;
+    }
+
+    body {
+        @apply antialiased text-slate-200 selection:bg-blue-500/30 overflow-x-hidden;
+        background-color: var(--bg-base);
+        font-family: var(--font-sans);
+        background-image:
+            radial-gradient(
+                circle at var(--cursor-x) var(--cursor-y),
+                rgba(59, 130, 246, 0.08) 0%,
+                transparent 40%
+            ),
+            radial-gradient(
+                circle at 100% 0%,
+                rgba(16, 185, 129, 0.05) 0%,
+                transparent 40%
+            );
+        background-attachment: fixed;
+    }
+
+    /* Data points should always use mono for technical precision */
+    .data-mono {
+        font-family: var(--font-mono);
+        letter-spacing: -0.02em;
+    }
 }
 
 @layer components {
-  /* TradingView-style Card */
-  .card {
-    @apply rounded-lg border p-6 transition-all duration-200;
-    background-color: var(--bg-secondary);
-    border-color: var(--border-secondary);
-  }
+    /* High-end Technical Glass Card */
+    .card {
+        @apply backdrop-blur-xl rounded-xl transition-all duration-300 p-6;
+        background-color: var(--bg-glass);
+        border: 1px solid var(--border-glass);
+        box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+    }
 
-  .card:hover {
-    border-color: var(--border-primary);
-  }
+    .card:hover {
+        @apply translate-y-[-2px];
+        background-color: var(--bg-glass-hover);
+        border-color: var(--border-glass-bright);
+        box-shadow: 0 12px 40px -4px rgba(0, 0, 0, 0.4);
+    }
 
-  /* Primary Button - TradingView Blue */
-  .btn-primary {
-    background: var(--accent-primary);
-    @apply text-white font-medium px-5 py-2.5 rounded-md transition-all duration-200 hover:brightness-110 active:scale-[0.98];
-  }
+    /* Minimalist Technical Button System */
+    .btn-primary {
+        @apply px-6 py-3 rounded-lg font-bold uppercase tracking-widest text-[10px] transition-all duration-300 flex items-center justify-center gap-2;
+        background: var(--accent-primary);
+        color: white;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
 
-  /* Secondary Button */
-  .btn-secondary {
-    @apply font-medium px-5 py-2.5 rounded-md border transition-all duration-200 hover:brightness-110 active:scale-[0.98];
-    background-color: var(--bg-tertiary);
-    border-color: var(--border-primary);
-    color: var(--text-primary);
-  }
+    .btn-primary:hover {
+        @apply brightness-110 -translate-y-0.5 shadow-blue-500/40;
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    }
 
-  .btn-secondary:hover {
-    background-color: var(--border-primary);
-  }
+    .btn-secondary {
+        @apply px-6 py-3 rounded-lg font-bold uppercase tracking-widest text-[10px] transition-all duration-300 backdrop-blur-md flex items-center justify-center gap-2;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-glass);
+        color: var(--text-secondary);
+    }
 
-  /* Danger Button */
-  .btn-danger {
-    background: var(--accent-danger);
-    @apply text-white font-medium px-5 py-2.5 rounded-md transition-all duration-200 hover:brightness-110 active:scale-[0.98];
-  }
+    .btn-secondary:hover {
+        @apply bg-white/10 text-white border-white/20;
+    }
 
-  /* Input Styles */
-  .input {
-    @apply rounded-md px-4 py-2.5 focus:outline-none transition-all duration-200;
-    background-color: var(--bg-tertiary);
-    border: 1px solid var(--border-secondary);
-    color: var(--text-primary);
-  }
+    /* Technical Input Fields */
+    .input {
+        @apply w-full bg-slate-950/50 backdrop-blur-md border border-white/5 rounded-lg px-4 py-3 text-sm transition-all duration-300 outline-none;
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+    }
 
-  .input::placeholder {
-    color: var(--text-muted);
-  }
+    .input:focus {
+        @apply border-blue-500/50 bg-slate-900/60 ring-1 ring-blue-500/20;
+    }
 
-  .input:focus {
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.15);
-  }
+    .input::placeholder {
+        @apply text-slate-600;
+    }
 
-  /* Select Styles */
-  .select {
-    @apply rounded-md px-4 py-2.5 focus:outline-none transition-all duration-200 cursor-pointer;
-    background-color: var(--bg-tertiary);
-    border: 1px solid var(--border-secondary);
-    color: var(--text-primary);
-  }
+    .select {
+        @apply input cursor-pointer appearance-none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+    }
 
-  .select:focus {
-    border-color: var(--accent-primary);
-  }
+    /* Navigation Dock Item */
+    .nav-item {
+        @apply px-4 py-2 transition-all duration-300 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center gap-2;
+        color: var(--text-secondary);
+    }
 
-  /* Metric Card Styles */
-  .metric-card {
-    @apply card flex flex-col gap-1;
-  }
+    .nav-item:hover {
+        @apply bg-white/5 text-white;
+    }
 
-  .metric-value-positive {
-    color: var(--accent-secondary);
-    @apply text-2xl font-bold;
-  }
+    .nav-item-active {
+        @apply bg-blue-600/10 text-blue-400 border border-blue-500/20 shadow-lg shadow-blue-500/5;
+    }
 
-  .metric-value-negative {
-    color: var(--accent-danger);
-    @apply text-2xl font-bold;
-  }
+    /* Table Minimalist Styles */
+    .table-container {
+        @apply w-full overflow-x-auto rounded-xl border border-white/5 bg-slate-950/20;
+    }
 
-  .metric-value-neutral {
-    color: var(--text-primary);
-    @apply text-2xl font-bold;
-  }
+    .table-header-cell {
+        @apply py-4 px-6 text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 border-b border-white/5 bg-white/[0.02];
+    }
 
-  /* Navigation Styles */
-  .nav-item {
-    @apply px-4 py-2 transition-all duration-200 cursor-pointer relative;
-    color: var(--text-secondary);
-  }
-
-  .nav-item-active {
-    color: var(--text-primary);
-    @apply font-medium;
-  }
-
-  .nav-item-active::after {
-    content: "";
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--accent-primary);
-  }
-
-  .nav-item-inactive:hover {
-    color: var(--text-primary);
-  }
-
-  /* Table styles */
-  .table-header {
-    @apply text-xs font-medium uppercase tracking-wider;
-    color: var(--text-secondary);
-    background-color: var(--bg-tertiary);
-  }
-
-  .table-row {
-    @apply border-b transition-colors;
-    border-color: var(--border-secondary);
-  }
-
-  .table-row:hover {
-    background-color: var(--bg-tertiary);
-  }
+    .table-data-cell {
+        @apply py-4 px-6 text-sm border-b border-white/5 transition-colors;
+    }
 }
 
 @layer utilities {
-  .text-gradient {
+    .glass-header {
+        @apply sticky top-0 z-[100] backdrop-blur-2xl border-b border-white/5;
+        background: rgba(2, 6, 23, 0.8);
+    }
+
+    .text-glow-success {
+        text-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .text-glow-danger {
+        text-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+    }
+
+    .bg-grid {
+        background-size: 50px 50px;
+        background-image:
+            linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0.01) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.01) 1px,
+                transparent 1px
+            );
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        @apply w-1.5 h-1.5;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+    }
+
+    .glow-border-success {
+        @apply border-emerald-500/30 shadow-[inset_0_0_12px_rgba(16,185,129,0.05)];
+    }
+
+    .glow-border-danger {
+        @apply border-rose-500/30 shadow-[inset_0_0_12px_rgba(244,63,94,0.05)];
+    }
+}
+
+/* Technical Scanline Effect */
+.scanline::before {
+    content: "";
+    @apply absolute inset-0 pointer-events-none z-[1];
     background: linear-gradient(
-      135deg,
-      var(--gradient-start),
-      var(--gradient-end)
+        to bottom,
+        transparent 50%,
+        rgba(0, 0, 0, 0.02) 50%
     );
-    @apply bg-clip-text text-transparent;
-  }
+    background-size: 100% 4px;
+}
 
-  .text-profit {
-    color: var(--accent-secondary);
-  }
+@keyframes pulse-soft {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
 
-  .text-loss {
-    color: var(--accent-danger);
-  }
-
-  .bg-profit {
-    background-color: rgba(38, 166, 154, 0.15);
-  }
-
-  .bg-loss {
-    background-color: rgba(239, 83, 80, 0.15);
-  }
-
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Custom scrollbar for TradingView look */
-  .scrollbar-tv {
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-primary) var(--bg-secondary);
-  }
-
-  .scrollbar-tv::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  .scrollbar-tv::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
-  }
-
-  .scrollbar-tv::-webkit-scrollbar-thumb {
-    background: var(--border-primary);
-    border-radius: 3px;
-  }
-
-  .scrollbar-tv::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
-  }
+.animate-pulse-soft {
+    animation: pulse-soft 3s ease-in-out infinite;
 }

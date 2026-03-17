@@ -1,22 +1,27 @@
-import React from 'react';
+import React from "react";
 
-const Input = ({ 
+/**
+ * Input Component - Technical Minimalist Design
+ * Implements high-precision input fields with glassmorphism support.
+ */
+const Input = ({
   label,
-  type = 'text',
+  type = "text",
   value,
   onChange,
   placeholder,
   required = false,
   disabled = false,
-  className = '',
+  className = "",
   error,
   ...props
 }) => {
   return (
-    <div className="flex flex-col gap-1 w-full">
+    <div className="flex flex-col w-full group">
       {label && (
-        <label className="text-sm font-medium text-[#888888]">
-          {label} {required && <span className="text-[#ff4444]">*</span>}
+        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 group-focus-within:text-blue-500 transition-colors mb-1.5 block">
+          {label}
+          {required && <span className="text-blue-500 ml-1 opacity-50">*</span>}
         </label>
       )}
       <input
@@ -26,10 +31,16 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        className={`input ${className} ${error ? 'border-[#ff4444]' : ''} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`input ${className} ${
+          error ? "border-rose-500/50 ring-1 ring-rose-500/20" : ""
+        } ${disabled ? "opacity-20 cursor-not-allowed grayscale" : ""}`}
         {...props}
       />
-      {error && <span className="text-xs text-[#ff4444]">{error}</span>}
+      {error && (
+        <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest mt-1.5 px-1">
+          Error // {error}
+        </span>
+      )}
     </div>
   );
 };
