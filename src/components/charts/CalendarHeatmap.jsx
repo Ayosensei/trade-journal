@@ -7,6 +7,7 @@ import {
   getDay,
 } from "date-fns";
 import { Activity } from "lucide-react";
+import { useTradeContext } from "../../context/TradeContext.jsx";
 
 /**
  * CalendarHeatmap Component - Technical Activity Matrix
@@ -14,6 +15,7 @@ import { Activity } from "lucide-react";
  * Implements high-precision glassmorphism and technical minimalism.
  */
 const CalendarHeatmap = ({ trades = [] }) => {
+  const { currencySymbol } = useTradeContext();
   // Range definition: Trailing 180 days
   const today = new Date();
   const endDate = today;
@@ -137,7 +139,7 @@ const CalendarHeatmap = ({ trades = [] }) => {
                     <div
                       key={dayIdx}
                       className={`w-3.5 h-3.5 rounded-[2px] border transition-all duration-500 hover:scale-125 hover:z-10 cursor-crosshair ${getLevel(pnl)}`}
-                      title={`${format(day, "MMM dd, yyyy")}${pnl !== undefined ? `: ${pnl >= 0 ? "+" : ""}$${pnl.toFixed(2)}` : ": No activity"}`}
+                      title={`${format(day, "MMM dd, yyyy")}${pnl !== undefined ? `: ${pnl >= 0 ? "+" : ""}${currencySymbol}${pnl.toFixed(2)}` : ": No activity"}`}
                     />
                   );
                 })}

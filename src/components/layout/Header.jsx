@@ -1,8 +1,10 @@
 import React from "react";
 import { Plus, ChevronDown, BarChart2, Zap } from "lucide-react";
 import Button from "../ui/Button";
+import { useTradeContext } from "../../context/TradeContext.jsx";
 
 const Header = ({ onAddTrade, selectedAccount, accounts, onAccountChange }) => {
+  const { currencySymbol } = useTradeContext();
   return (
     <header className="glass-header">
       <div className="max-w-7xl mx-auto px-6 py-4">
@@ -37,7 +39,7 @@ const Header = ({ onAddTrade, selectedAccount, accounts, onAccountChange }) => {
                   Live Balance
                 </span>
                 <span className="text-sm font-bold text-emerald-400 data-mono">
-                  ${selectedAccount.currentBalance.toLocaleString()}
+                  {currencySymbol}{selectedAccount.currentBalance.toLocaleString()}
                 </span>
               </div>
             )}

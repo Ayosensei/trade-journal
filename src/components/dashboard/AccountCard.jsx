@@ -1,12 +1,15 @@
 import React from "react";
 import { formatCurrency } from "../../utils/calculations";
 import { Wallet, Activity, ShieldCheck } from "lucide-react";
+import { useTradeContext } from "../../context/TradeContext.jsx";
 
 /**
  * AccountCard Component
  * High-precision technical card with glassmorphism and data-first aesthetics.
  */
 const AccountCard = ({ account, isActive = false, onClick }) => {
+  const { currencySymbol, currency } = useTradeContext();
+  
   if (!account) return null;
 
   const pnl = account.currentBalance - account.initialBalance;
@@ -62,14 +65,14 @@ const AccountCard = ({ account, isActive = false, onClick }) => {
         <div className="space-y-1.5">
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-white data-mono tracking-tighter">
-              $
+              {currencySymbol}
               {account.currentBalance.toLocaleString(undefined, {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
             </span>
             <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest mb-1 underline decoration-blue-500/20 underline-offset-4">
-              USD
+              {currency}
             </span>
           </div>
 
@@ -83,7 +86,7 @@ const AccountCard = ({ account, isActive = false, onClick }) => {
               <span
                 className={`text-[11px] font-bold data-mono ${isPositive ? "text-emerald-400" : "text-rose-400"}`}
               >
-                {formatCurrency(pnl)}
+                {formatCurrency(pnl, currencySymbol)}
               </span>
             </div>
 

@@ -20,6 +20,7 @@ export const TradeProvider = ({ children }) => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [customPairs, setCustomPairs] = useState([]);
   const [customStrategies, setCustomStrategies] = useState([]);
+  const [currency, setCurrency] = useState("USD");
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -35,10 +36,12 @@ export const TradeProvider = ({ children }) => {
     const loadedSelectedAccount = localStorage.getItem(
       STORAGE_KEYS.SELECTED_ACCOUNT,
     );
+    const loadedCurrency = localStorage.getItem(STORAGE_KEYS.CURRENCY) || "USD";
 
     setAccounts(loadedAccounts);
     setTrades(loadedTrades);
     setCustomPairs(loadedCustomPairs);
+    setCurrency(loadedCurrency);
 
     // Set selected account or create default if none exists
     if (loadedAccounts.length > 0) {
@@ -83,6 +86,10 @@ export const TradeProvider = ({ children }) => {
       localStorage.setItem(STORAGE_KEYS.SELECTED_ACCOUNT, selectedAccount.id);
     }
   }, [selectedAccount]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.CURRENCY, currency);
+  }, [currency]);
 
   // Add a new trade
   const addTrade = (tradeData) => {
@@ -296,12 +303,21 @@ export const TradeProvider = ({ children }) => {
     return trades.filter((t) => selectedAccount.trades.includes(t.id));
   };
 
+  const updateCurrency = (newCurrency) => {
+    setCurrency(newCurrency);
+  };
+
+  const currencySymbol = currency === "NGN" ? "₦" : "$";
+
   const value = {
     accounts,
     trades,
     selectedAccount,
     customPairs,
     customStrategies,
+    currency,
+    currencySymbol,
+    updateCurrency,
     addTrade,
     updateTrade,
     deleteTrade,

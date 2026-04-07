@@ -11,8 +11,9 @@ import {
 import { format } from "date-fns";
 import { TrendingUp, Activity } from "lucide-react";
 import { formatCurrency } from "../../utils/calculations";
+import { useTradeContext } from "../../context/TradeContext.jsx";
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload, currencySymbol }) => {
   if (active && payload && payload.length) {
     return (
       <div className="backdrop-blur-xl bg-slate-950/80 border border-white/10 p-3 rounded-lg shadow-2xl">
@@ -23,7 +24,7 @@ const CustomTooltip = ({ active, payload }) => {
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
           <p className="text-sm font-bold text-white data-mono">
-            $
+            {currencySymbol}
             {payload[0].value.toLocaleString(undefined, {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
@@ -41,6 +42,8 @@ const CustomTooltip = ({ active, payload }) => {
  * Visualizes account growth with high-precision technical aesthetics.
  */
 const EquityChart = ({ data, currentPnL }) => {
+  const { currencySymbol } = useTradeContext();
+  
   if (!data || data.length === 0) {
     return (
       <div className="card h-[300px] flex flex-col items-center justify-center border-dashed border-white/5 opacity-50">
@@ -87,7 +90,7 @@ const EquityChart = ({ data, currentPnL }) => {
             }`}
           >
             {isPositive ? "+" : ""}
-            {formatCurrency(currentPnL)}
+            {formatCurrency(currentPnL, currencySymbol)}
           </span>
         </div>
       </div>
@@ -117,12 +120,12 @@ const EquityChart = ({ data, currentPnL }) => {
               axisLine={false}
               tickLine={false}
               tickFormatter={(value) =>
-                `$${value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}`
+                `${currencySymbol}${value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}`
               }
               domain={["auto", "auto"]}
             />
             <Tooltip
-              content={<CustomTooltip />}
+              content={<CustomTooltip currencySymbol={currencySymbol} />}
               cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }}
             />
             <Area

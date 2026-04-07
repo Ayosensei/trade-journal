@@ -9,6 +9,7 @@ import {
   User,
   DollarSign,
   Save,
+  Coins,
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -34,6 +35,9 @@ const Settings = () => {
     accounts,
     addAccount,
     deleteAccount,
+    currency,
+    currencySymbol,
+    updateCurrency,
   } = useTradeContext();
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -177,7 +181,7 @@ const Settings = () => {
                   Current Account: {selectedAccount.name}
                 </p>
                 <p className="text-2xl font-bold text-white mb-4">
-                  ${selectedAccount.currentBalance.toLocaleString()}
+                  {currencySymbol}{selectedAccount.currentBalance.toLocaleString()}
                 </p>
               </div>
 
@@ -228,7 +232,7 @@ const Settings = () => {
                         {acc.name}
                       </span>
                       <span className="text-sm text-gray-400">
-                        ${acc.currentBalance.toLocaleString()}
+                        {currencySymbol}{acc.currentBalance.toLocaleString()}
                       </span>
                     </div>
                     {accounts.length > 1 && (
@@ -282,6 +286,40 @@ const Settings = () => {
             </div>
           </div>
         )}
+
+        {/* Currency Settings */}
+        <div className="card">
+          <div className="flex items-center gap-3 mb-6">
+            <Coins className="text-white" size={24} />
+            <h3 className="text-xl font-semibold text-white">Currency</h3>
+          </div>
+          
+          <div className="space-y-4">
+            <p className="text-sm text-gray-400 mb-2">
+              Select your preferred display currency
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => updateCurrency("USD")}
+                className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all duration-200 flex items-center justify-center gap-2 ${
+                  currency === "USD" ? "border-blue-500 bg-blue-500/10 text-blue-400" : "border-white/10 bg-white/5 hover:border-white/20 text-white"
+                }`}
+              >
+                <span className="font-bold text-lg">$</span>
+                <span>USD</span>
+              </button>
+              <button
+                onClick={() => updateCurrency("NGN")}
+                className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all duration-200 flex items-center justify-center gap-2 ${
+                  currency === "NGN" ? "border-blue-500 bg-blue-500/10 text-blue-400" : "border-white/10 bg-white/5 hover:border-white/20 text-white"
+                }`}
+              >
+                <span className="font-bold text-lg">₦</span>
+                <span>NGN</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Theme Settings */}
         <div className="card">

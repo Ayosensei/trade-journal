@@ -29,7 +29,7 @@ import { useData } from "../context/DataContext";
  * Design: High-precision glassmorphism with technical minimalism.
  */
 const TradeLog = ({ onEditTrade }) => {
-  const { getAccountTrades, deleteTrade, selectedAccount } = useTradeContext();
+  const { getAccountTrades, deleteTrade, selectedAccount, currencySymbol } = useTradeContext();
   const { exportToCSV } = useData();
   const allTrades = getAccountTrades();
 
@@ -295,12 +295,12 @@ const TradeLog = ({ onEditTrade }) => {
                       <div className="grid grid-cols-2 gap-x-6 gap-y-1">
                         <div className="flex items-center gap-2">
                           <span className="text-[8px] font-black text-slate-600 uppercase tracking-tighter w-8">IN:</span>
-                          <span className="text-[11px] font-bold text-slate-300 data-mono">${trade.entryPrice?.toLocaleString()}</span>
+                          <span className="text-[11px] font-bold text-slate-300 data-mono">{currencySymbol}{trade.entryPrice?.toLocaleString()}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-[8px] font-black text-slate-600 uppercase tracking-tighter w-8">OUT:</span>
                           <span className="text-[11px] font-bold text-slate-300 data-mono">
-                            {trade.exits && trade.exits.length > 0 ? "PARTIAL" : `$${trade.exitPrice?.toLocaleString() || "..."}`}
+                            {trade.exits && trade.exits.length > 0 ? "PARTIAL" : `${currencySymbol}${trade.exitPrice?.toLocaleString() || "..."}`}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -336,7 +336,7 @@ const TradeLog = ({ onEditTrade }) => {
                           }`}
                         >
                           {(trade.pnl || 0) >= 0 ? "+" : ""}
-                          {formatCurrency(trade.pnl || 0)}
+                          {formatCurrency(trade.pnl || 0, currencySymbol)}
                         </span>
                         <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
                           {(trade.pnl || 0) >= 0 ? <ArrowUpRight size={10} className="text-emerald-500" /> : <ArrowDownRight size={10} className="text-rose-500" />}

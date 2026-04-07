@@ -41,7 +41,7 @@ import CalendarHeatmap from "../components/charts/CalendarHeatmap";
  * High-density modular layout with glassmorphism and technical minimalism.
  */
 const Analysis = () => {
-  const { getAccountTrades, selectedAccount } = useTradeContext();
+  const { getAccountTrades, selectedAccount, currencySymbol } = useTradeContext();
   const trades = useMemo(() => getAccountTrades(), [getAccountTrades]);
   const initialBalance = selectedAccount?.initialBalance || 0;
 
@@ -94,7 +94,7 @@ const Analysis = () => {
             Temporal Node // {new Date(label).toLocaleDateString()}
           </p>
           <p className="text-sm font-bold data-mono" style={{ color: payload[0].color }}>
-            {payload[0].name}: {payload[0].name.includes("Drawdown") ? `${payload[0].value}%` : formatCurrency(payload[0].value)}
+            {payload[0].name}: {payload[0].name.includes("Drawdown") ? `${payload[0].value}%` : formatCurrency(payload[0].value, currencySymbol)}
           </p>
         </div>
       );
@@ -275,7 +275,7 @@ const Analysis = () => {
                     </td>
                     <td className="table-data-cell text-right">
                       <span className={`font-bold data-mono ${asset.totalPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {formatCurrency(asset.totalPnL)}
+                        {formatCurrency(asset.totalPnL, currencySymbol)}
                       </span>
                     </td>
                   </tr>

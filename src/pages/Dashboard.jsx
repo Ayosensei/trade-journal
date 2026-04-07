@@ -26,7 +26,7 @@ import {
 } from "../utils/calculations";
 
 const Dashboard = () => {
-  const { selectedAccount, getAccountTrades, accounts, switchAccount } =
+  const { selectedAccount, getAccountTrades, accounts, switchAccount, currencySymbol } =
     useTradeContext();
   const trades = getAccountTrades();
 
@@ -94,7 +94,7 @@ const Dashboard = () => {
         <MetricCard
           icon={DollarSign}
           label="Net Flow"
-          value={formatCurrency(netPnL)}
+          value={formatCurrency(netPnL, currencySymbol)}
           type={netPnL >= 0 ? "positive" : "negative"}
           subtitle="Cumulative P&L"
         />
@@ -115,14 +115,14 @@ const Dashboard = () => {
         <MetricCard
           icon={TrendingUp}
           label="Alpha Avg"
-          value={formatCurrency(avgWin)}
+          value={formatCurrency(avgWin, currencySymbol)}
           type="positive"
           subtitle="Average Winner"
         />
         <MetricCard
           icon={TrendingDown}
           label="Beta Avg"
-          value={formatCurrency(avgLoss)}
+          value={formatCurrency(avgLoss, currencySymbol)}
           type="negative"
           subtitle="Average Loser"
         />

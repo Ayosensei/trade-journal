@@ -25,7 +25,7 @@ import ConfirmDialog from "../components/ui/ConfirmDialog.jsx";
  */
 const DailyJournal = () => {
   const { entries, addEntry, updateEntry, deleteEntry, getEntries } = useJournal();
-  const { getAccountTrades, selectedAccount } = useTradeContext();
+  const { getAccountTrades, selectedAccount, currencySymbol } = useTradeContext();
 
   const [showAddEntry, setShowAddEntry] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
@@ -227,7 +227,7 @@ const DailyJournal = () => {
                     <div className="flex flex-col items-end">
                       <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Yield_Delta</span>
                       <span className={`text-sm font-bold data-mono ${entry.pnl >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                        {formatCurrency(entry.pnl)}
+                        {formatCurrency(entry.pnl, currencySymbol)}
                       </span>
                     </div>
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
@@ -276,7 +276,7 @@ const DailyJournal = () => {
                               </div>
                               <div className="flex items-center gap-4">
                                 <span className={`text-[10px] font-bold data-mono ${trade.pnl >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                                  {formatCurrency(trade.pnl)}
+                                  {formatCurrency(trade.pnl, currencySymbol)}
                                 </span>
                                 <ExternalLink size={10} className="text-slate-700 group-hover/item:text-blue-500 transition-colors" />
                               </div>

@@ -36,7 +36,7 @@ const getInitialFormData = (tradeData) => ({
 });
 
 const TradeForm = ({ isOpen, onClose, trade = null }) => {
-  const { addTrade, updateTrade, customPairs, addCustomPair, selectedAccount } =
+  const { addTrade, updateTrade, customPairs, addCustomPair, selectedAccount, currencySymbol } =
     useTradeContext();
 
   const [formData, setFormData] = useState(getInitialFormData(trade));
@@ -362,7 +362,7 @@ const TradeForm = ({ isOpen, onClose, trade = null }) => {
                       </button>
                     </div>
                     <div className="col-span-2 text-[10px] text-gray-500">
-                      Calculation based on current account balance ($
+                      Calculation based on current account balance ({currencySymbol}
                       {accountBalance.toLocaleString()}) and SL distance.
                     </div>
                   </div>

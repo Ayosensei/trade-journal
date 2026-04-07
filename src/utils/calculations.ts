@@ -245,13 +245,13 @@ export const getCalendarHeatmapData = (
  * @param {number} value - Numeric value
  * @returns {string} Formatted currency string
  */
-export const formatCurrency = (value: number): string => {
-  if (value === null || value === undefined) return "$0.00";
+export const formatCurrency = (value: number, currencySymbol: string = "$"): string => {
+  if (value === null || value === undefined) return `${currencySymbol}0.00`;
 
   const formatted = Math.abs(value).toFixed(2);
   const sign = value >= 0 ? "+" : "-";
 
-  return `${sign}$${formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+  return `${sign}${currencySymbol}${formatted.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 };
 
 /**

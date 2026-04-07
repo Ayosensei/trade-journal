@@ -66,6 +66,7 @@ export const STORAGE_KEYS = {
   USER_SESSION: "trade_journal_user_session",
   BACKUP_PREFIX: "trade_journal_backup_",
   DATA_VERSION: "trade_journal_data_version",
+  CURRENCY: "trade_journal_currency",
 };
 
 export const DATA_VERSION = "1.0.0";
