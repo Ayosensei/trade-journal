@@ -174,6 +174,8 @@ const TradeForm = ({ isOpen, onClose, trade = null }) => {
       exitPrice: formData.exitPrice ? parseFloat(formData.exitPrice) : null,
       positionSize: parseFloat(formData.positionSize),
       stopLoss: formData.stopLoss ? parseFloat(formData.stopLoss) : null,
+      pnl: formData.pnl !== "" && formData.pnl !== null ? parseFloat(formData.pnl) : null,
+      riskReward: formData.riskReward !== "" && formData.riskReward !== null ? parseFloat(formData.riskReward) : null,
       exits: formData.exits
         .map((ex) => ({
           price: parseFloat(ex.price) || null,
@@ -456,6 +458,24 @@ const TradeForm = ({ isOpen, onClose, trade = null }) => {
                   onChange={(e) => handleChange("outcome", e.target.value)}
                   options={OUTCOMES}
                   required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label={`Profit / Loss (${currencySymbol})`}
+                  type="number"
+                  step="any"
+                  value={formData.pnl}
+                  onChange={(e) => handleChange("pnl", e.target.value)}
+                />
+                <Input
+                  label="Risk/Reward (R)"
+                  type="number"
+                  step="any"
+                  value={formData.riskReward}
+                  onChange={(e) => handleChange("riskReward", e.target.value)}
+                  placeholder="e.g., 2.5"
                 />
               </div>
 
