@@ -125,10 +125,10 @@ const TradeLog = ({ onEditTrade }) => {
         <div className="space-y-1">
           <h2 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
             <Database className="text-blue-500" size={20} />
-            Execution Ledger
+            Trade Log
           </h2>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
-            Protocol_Node: {selectedAccount?.id.slice(0, 8).toUpperCase() || "GLOBAL_ROOT"}
+            Account: {selectedAccount?.id.slice(0, 8).toUpperCase() || "MAIN"}
           </p>
         </div>
 
@@ -137,7 +137,7 @@ const TradeLog = ({ onEditTrade }) => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors" size={14} />
             <input
               type="text"
-              placeholder="QUERY_LEDGER..."
+              placeholder="SEARCH_TRADES..."
               className="input w-48 lg:w-64 pl-9 py-2 text-[10px] font-bold uppercase tracking-widest bg-slate-950/40 border-white/5"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -169,7 +169,7 @@ const TradeLog = ({ onEditTrade }) => {
       {showFilters && (
         <div className="card border-blue-500/20 bg-blue-500/[0.02] p-6 space-y-8 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FilterSection label="Temporal Constraints" icon={Calendar}>
+            <FilterSection label="Date Range" icon={Calendar}>
               <div className="flex gap-2 items-center">
                 <input
                   type="date"
@@ -187,7 +187,7 @@ const TradeLog = ({ onEditTrade }) => {
               </div>
             </FilterSection>
 
-            <FilterSection label="Outcome Probability" icon={Target}>
+            <FilterSection label="Trade Outcome" icon={Target}>
               <div className="flex flex-wrap gap-2">
                 {OUTCOMES.map((o) => (
                   <FilterChip
@@ -201,7 +201,7 @@ const TradeLog = ({ onEditTrade }) => {
               </div>
             </FilterSection>
 
-            <FilterSection label="Operational Tags" icon={Tag}>
+            <FilterSection label="Trade Tags" icon={Tag}>
               <div className="flex flex-wrap gap-2 max-h-[100px] overflow-y-auto pr-2 custom-scrollbar">
                 {TRADE_TAGS.map((t) => (
                   <FilterChip
@@ -235,7 +235,7 @@ const TradeLog = ({ onEditTrade }) => {
               className="flex items-center gap-2 text-[9px] font-black text-rose-500/60 hover:text-rose-500 transition-colors disabled:opacity-20 uppercase tracking-widest"
             >
               <X size={12} />
-              Reset_Ledger_Query
+              Reset_Filters
             </button>
           </div>
         </div>
@@ -249,9 +249,9 @@ const TradeLog = ({ onEditTrade }) => {
               <tr className="bg-white/[0.02] border-b border-white/5">
                 <th className="py-4 px-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] w-12 text-center">Status</th>
                 <th className="py-4 px-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Entity</th>
-                <th className="py-4 px-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Execution_Data</th>
+                <th className="py-4 px-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Trade_Data</th>
                 <th className="py-4 px-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">Metrics</th>
-                <th className="py-4 px-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Return_Node</th>
+                <th className="py-4 px-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Result</th>
                 <th className="py-4 px-6 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] w-24"></th>
               </tr>
             </thead>
@@ -340,7 +340,7 @@ const TradeLog = ({ onEditTrade }) => {
                         </span>
                         <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
                           {(trade.pnl || 0) >= 0 ? <ArrowUpRight size={10} className="text-emerald-500" /> : <ArrowDownRight size={10} className="text-rose-500" />}
-                          <span className="text-[8px] font-bold text-slate-500 uppercase">SYNCHRONIZED</span>
+                          <span className="text-[8px] font-bold text-slate-500 uppercase">SAVED</span>
                         </div>
                       </div>
                     </td>
@@ -366,7 +366,7 @@ const TradeLog = ({ onEditTrade }) => {
                 <tr>
                   <td colSpan={6} className="py-24 text-center">
                     <Activity className="mx-auto text-slate-800 mb-4" size={48} />
-                    <p className="text-xs font-black text-slate-600 uppercase tracking-[0.3em]">No_Ledger_Entries_Matched</p>
+                    <p className="text-xs font-black text-slate-600 uppercase tracking-[0.3em]">No_Trades_Matched</p>
                     {isFiltered && (
                       <button onClick={clearFilters} className="mt-4 text-[10px] font-black text-blue-500 uppercase tracking-widest hover:underline">
                         Bypass_Filters
@@ -383,7 +383,7 @@ const TradeLog = ({ onEditTrade }) => {
       <ConfirmDialog
         isOpen={showDeleteConfirm}
         title="Protocol: Data_Deletion"
-        message={`Confirm permanent purge of execution node ${tradeToDelete?.asset} [${tradeToDelete?.id.slice(0, 8)}]. This action modifies historical account trajectory.`}
+        message={`Confirm permanent deletion of trade ${tradeToDelete?.asset} [${tradeToDelete?.id.slice(0, 8)}]. This action modifies historical account trajectory.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => {
           setShowDeleteConfirm(false);

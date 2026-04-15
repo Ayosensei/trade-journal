@@ -121,10 +121,10 @@ const DailyJournal = () => {
         <div className="space-y-1">
           <h2 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
             <Brain className="text-purple-500" size={20} />
-            Reflection Protocol
+            Trade Journal
           </h2>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
-            Psychological Audit Log // Cluster_{selectedAccount?.id.slice(0,4).toUpperCase() || 'ROOT'}
+            Journal Log // Account_{selectedAccount?.id.slice(0,4).toUpperCase() || 'ROOT'}
           </p>
         </div>
         <button
@@ -132,7 +132,7 @@ const DailyJournal = () => {
           className="btn-primary group"
         >
           <Plus size={14} className="mr-2 group-hover:rotate-90 transition-transform duration-300" />
-          <span className="text-[10px] font-black uppercase tracking-widest">Commit_Daily_Insight</span>
+          <span className="text-[10px] font-black uppercase tracking-widest">Add_Journal_Entry</span>
         </button>
       </div>
 
@@ -143,7 +143,7 @@ const DailyJournal = () => {
             <div className="flex items-center gap-2 mb-6">
               <CalendarIcon size={14} className="text-blue-500" />
               <h3 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">
-                Temporal_Node // {today.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                Date // {today.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
               </h3>
             </div>
 
@@ -180,13 +180,13 @@ const DailyJournal = () => {
           </div>
 
           <div className="card bg-slate-950/20 border-white/5 p-5 space-y-4">
-            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest block">Audit_Statistics</span>
+            <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest block">Journal_Stats</span>
             <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold text-slate-500">Commits_Total</span>
+              <span className="text-[10px] font-bold text-slate-500">Total_Entries</span>
               <span className="text-xs font-bold text-white data-mono">{sortedEntries.length}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-[10px] font-bold text-slate-500">System_Health</span>
+              <span className="text-[10px] font-bold text-slate-500">Status</span>
               <span className="text-[10px] font-black text-emerald-500 uppercase tracking-tighter uppercase">Optimal</span>
             </div>
           </div>
@@ -197,7 +197,7 @@ const DailyJournal = () => {
           {sortedEntries.length === 0 ? (
             <div className="card flex flex-col items-center justify-center py-24 border-dashed border-white/5 bg-transparent opacity-40">
               <BookOpen className="text-slate-800 mb-4" size={48} />
-              <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Ledger_Memory_Empty</p>
+              <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">No_Entries_Found</p>
             </div>
           ) : (
             sortedEntries.map((entry) => (
@@ -210,7 +210,7 @@ const DailyJournal = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-black text-white uppercase tracking-widest">
-                        Node_Log // {new Date(entry.date).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "2-digit", year: "numeric" })}
+                        Entry // {new Date(entry.date).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "2-digit", year: "numeric" })}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
@@ -221,11 +221,11 @@ const DailyJournal = () => {
 
                   <div className="flex items-center gap-8 mt-4 md:mt-0">
                     <div className="flex flex-col items-end">
-                      <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Vol_Linked</span>
+                      <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Trades_Linked</span>
                       <span className="text-sm font-bold text-white data-mono">{entry.tradesCount} Ops</span>
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">Yield_Delta</span>
+                      <span className="text-[8px] font-black text-slate-600 uppercase tracking-widest mb-1">P&L_Delta</span>
                       <span className={`text-sm font-bold data-mono ${entry.pnl >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
                         {formatCurrency(entry.pnl, currencySymbol)}
                       </span>
@@ -244,12 +244,12 @@ const DailyJournal = () => {
                 {/* Entry Content Grids */}
                 <div className="p-8 grid md:grid-cols-2 gap-10">
                   <div className="space-y-6">
-                    <ReflectionSection label="Environmental_Context" icon={TrendingUp} color="text-blue-400">
+                    <ReflectionSection label="Market_Context" icon={TrendingUp} color="text-blue-400">
                       <div className="prose-slate prose-invert text-[11px] leading-relaxed text-slate-400 font-medium bg-slate-950/40 p-4 rounded-lg border border-white/[0.03]">
                         <ReactMarkdown>{entry.marketConditions}</ReactMarkdown>
                       </div>
                     </ReflectionSection>
-                    <ReflectionSection label="Psychological_Response" icon={FileText} color="text-emerald-400">
+                    <ReflectionSection label="Psychological_Review" icon={FileText} color="text-emerald-400">
                       <div className="prose-slate prose-invert text-[11px] leading-relaxed text-slate-400 font-medium bg-slate-950/40 p-4 rounded-lg border border-white/[0.03]">
                         <ReactMarkdown>{entry.observations}</ReactMarkdown>
                       </div>
@@ -257,14 +257,14 @@ const DailyJournal = () => {
                   </div>
 
                   <div className="space-y-6">
-                    <ReflectionSection label="Core_Optimization" icon={Lightbulb} color="text-amber-400">
+                    <ReflectionSection label="Core_Lesson" icon={Lightbulb} color="text-amber-400">
                       <div className="prose-slate prose-invert text-[11px] leading-relaxed text-slate-300 font-bold bg-amber-500/[0.02] p-4 rounded-lg border border-amber-500/10">
                         <ReactMarkdown>{entry.lessonsLearned}</ReactMarkdown>
                       </div>
                     </ReflectionSection>
 
                     {/* Linked Ops Grid */}
-                    <ReflectionSection label="Execution_Sync" icon={LinkIcon} color="text-purple-400">
+                    <ReflectionSection label="Linked_Trades" icon={LinkIcon} color="text-purple-400">
                       <div className="space-y-2">
                         {getTradesForDate(entry.date).length > 0 ? (
                           getTradesForDate(entry.date).map((trade) => (
@@ -284,7 +284,7 @@ const DailyJournal = () => {
                           ))
                         ) : (
                           <div className="p-4 text-center border border-dashed border-white/5 rounded-lg">
-                            <span className="text-[9px] font-black text-slate-700 uppercase tracking-widest">No_Ops_Detected</span>
+                            <span className="text-[9px] font-black text-slate-700 uppercase tracking-widest">No_Trades_Linked</span>
                           </div>
                         )}
                       </div>
@@ -307,7 +307,7 @@ const DailyJournal = () => {
                   <Zap size={16} />
                 </div>
                 <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">
-                  {editingEntry ? "Edit_Insight_Node" : "Commit_New_Reflector"}
+                  {editingEntry ? "Edit_Journal_Entry" : "New_Journal_Entry"}
                 </h3>
               </div>
               <button onClick={() => setShowAddEntry(false)} className="text-slate-500 hover:text-white transition-colors">
@@ -318,7 +318,7 @@ const DailyJournal = () => {
             <div className="p-8 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Temporal_Reference</label>
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</label>
                   <input
                     type="date"
                     className="input font-bold text-xs uppercase"
@@ -327,7 +327,7 @@ const DailyJournal = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Mood_Calibration</label>
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Mood</label>
                   <div className="flex gap-2 flex-wrap">
                     {moodOptions.map((mood) => (
                       <button
@@ -349,21 +349,21 @@ const DailyJournal = () => {
               </div>
 
               <JournalInput
-                label="Environment_Context"
+                label="Market_Context"
                 sub="Market conditions, volatility index, structural bias..."
                 value={formData.marketConditions}
                 onChange={(val) => setFormData({ ...formData, marketConditions: val })}
               />
 
               <JournalInput
-                label="Psychology_Variance"
+                label="Psychology_Review"
                 sub="FOMO levels, discipline alignment, winner/loser handling..."
                 value={formData.observations}
                 onChange={(val) => setFormData({ ...formData, observations: val })}
               />
 
               <JournalInput
-                label="Actionable_Protocol"
+                label="Actionable_Lesson"
                 sub="What is the singular refinement for the next session?"
                 value={formData.lessonsLearned}
                 onChange={(val) => setFormData({ ...formData, lessonsLearned: val })}
@@ -375,13 +375,13 @@ const DailyJournal = () => {
                   className="btn-secondary flex-1"
                   onClick={() => setShowAddEntry(false)}
                 >
-                  Discard_Commit
+                  Cancel
                 </button>
                 <button
                   className="btn-primary flex-1 shadow-blue-500/20"
                   onClick={handleSaveEntry}
                 >
-                  {editingEntry ? "Execute_Update" : "Finalize_Commit"}
+                  {editingEntry ? "Update_Entry" : "Save_Entry"}
                 </button>
               </div>
             </div>

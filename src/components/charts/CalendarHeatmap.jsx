@@ -81,10 +81,10 @@ const CalendarHeatmap = ({ trades = [] }) => {
           </div>
           <div>
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 block">
-              Temporal Distribution Matrix
+              Activity Calendar
             </span>
             <span className="text-[8px] font-bold text-slate-600 uppercase tracking-tighter">
-              Operational_History // 180_Days_Trailing
+              Trading_History // 180_Days_Trailing
             </span>
           </div>
         </div>
@@ -161,20 +161,20 @@ const CalendarHeatmap = ({ trades = [] }) => {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-[2px] bg-emerald-500/40 border border-emerald-500/20" />
             <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.15em]">
-              Alpha_Gain
+              Profit_Day
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-[2px] bg-rose-500/40 border border-rose-500/20" />
             <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.15em]">
-              Beta_Loss
+              Loss_Day
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <span className="text-[8px] font-mono text-slate-700 tracking-tighter">
-            CALIBRATION: STABLE
+            STATUS: ACTIVE
           </span>
           <div className="relative flex items-center justify-center">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />

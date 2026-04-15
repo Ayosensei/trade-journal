@@ -18,7 +18,7 @@ const CustomTooltip = ({ active, payload, currencySymbol }) => {
     return (
       <div className="backdrop-blur-xl bg-slate-950/80 border border-white/10 p-3 rounded-lg shadow-2xl">
         <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
-          Observation Log //{" "}
+          Trade Details //{" "}
           {format(new Date(payload[0].payload.date), "MMM dd, yyyy")}
         </p>
         <div className="flex items-center gap-2">
@@ -151,7 +151,7 @@ const EquityChart = ({ data, currentPnL }) => {
           <div className="flex items-center gap-1.5">
             <div className="w-1 h-1 bg-slate-500 rounded-full" />
             <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">
-              Grid_Sync: Active
+              Live_Sync: Active
             </span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -162,7 +162,7 @@ const EquityChart = ({ data, currentPnL }) => {
           </div>
         </div>
         <span className="text-[8px] font-mono text-slate-600">
-          SECURE_ENCRYPTION_NODE_ALPHA
+          Connection_Secure
         </span>
       </div>
     </div>

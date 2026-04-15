@@ -16,7 +16,7 @@ const Navigation = ({ activeTab = "dashboard", onTabChange }) => {
   const mainTabs = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, key: "D" },
     { id: "daily-journal", label: "Journal", icon: BookOpen, key: "J" },
-    { id: "trade-log", label: "Ledger", icon: List, key: "L" },
+    { id: "trade-log", label: "Trades", icon: List, key: "L" },
     { id: "analysis", label: "Analysis", icon: BarChart3, key: "A" },
   ];
 

@@ -112,7 +112,7 @@ const Analysis = () => {
             Quant Intelligence
           </h2>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
-            Deep Analytics Protocol // Cluster_{selectedAccount?.id.slice(0,4).toUpperCase() || 'NULL'}
+            Trade Analytics // Account_{selectedAccount?.id.slice(0,4).toUpperCase() || 'NULL'}
           </p>
         </div>
         <div className="flex items-center gap-6">
@@ -120,7 +120,7 @@ const Analysis = () => {
             <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Global Status</span>
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="text-xs font-bold text-slate-300 data-mono uppercase">Node_Stable</span>
+              <span className="text-xs font-bold text-slate-300 data-mono uppercase">Data_Synced</span>
             </div>
           </div>
           <div className="flex flex-col items-end">
@@ -133,14 +133,14 @@ const Analysis = () => {
       {/* KPI Grid - Minimalist High Contrast */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <AnalysisMetric
-          label="Execution Velocity"
+          label="Trading Volume"
           value={trades.length}
           icon={Activity}
           sub="Total Trades"
           accent="blue"
         />
         <AnalysisMetric
-          label="Alpha Streak"
+          label="Winning Streak"
           value={`${metrics.streak.count} ${metrics.streak.type.toUpperCase()}`}
           icon={Zap}
           sub="Current Momentum"

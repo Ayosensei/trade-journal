@@ -113,7 +113,7 @@ const AccountCard = ({ account, isActive = false, onClick }) => {
 
       {/* Background Technical Watermark */}
       <div className="absolute -bottom-4 -right-2 text-[48px] font-black text-white/[0.01] pointer-events-none select-none italic group-hover:text-white/[0.02] transition-colors duration-700 uppercase">
-        Node_{account.id.slice(0, 4).toUpperCase()}
+        Account_{account.id.slice(0, 4).toUpperCase()}
       </div>
     </div>
   );

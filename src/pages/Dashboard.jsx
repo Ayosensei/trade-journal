@@ -102,7 +102,7 @@ const Dashboard = () => {
           icon={Target}
           label="Accuracy"
           value={`${winRate}%`}
-          subtitle={`${trades.filter((t) => t.outcome === "Win").length} of ${totalTrades} Executions`}
+          subtitle={`${trades.filter((t) => t.outcome === "Win").length} of ${totalTrades} Trades`}
           type="neutral"
         />
         <MetricCard
@@ -114,24 +114,24 @@ const Dashboard = () => {
         />
         <MetricCard
           icon={TrendingUp}
-          label="Alpha Avg"
+          label="Avg Win"
           value={formatCurrency(avgWin, currencySymbol)}
           type="positive"
           subtitle="Average Winner"
         />
         <MetricCard
           icon={TrendingDown}
-          label="Beta Avg"
+          label="Avg Loss"
           value={formatCurrency(avgLoss, currencySymbol)}
           type="negative"
           subtitle="Average Loser"
         />
         <MetricCard
           icon={BarChart3}
-          label="Velocity"
+          label="Volume"
           value={totalTrades}
           type="neutral"
-          subtitle="Total Operations"
+          subtitle="Total Trades"
         />
       </div>
 
@@ -154,10 +154,10 @@ const Dashboard = () => {
             </div>
             <div>
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-                Operational Protocols
+                Trading Checklist
               </h3>
               <p className="text-[8px] font-bold text-slate-600 uppercase tracking-tighter mt-0.5">
-                System Verification Checklist
+                Trading Checklist
               </p>
             </div>
           </div>
@@ -206,14 +206,14 @@ const Dashboard = () => {
                 <ProtocolItem label="Archive chart screenshot metadata" />
                 <ProtocolItem label="Synchronize P&L with account master" />
                 <ProtocolItem label="Review emotional state variance" />
-                <ProtocolItem label="Execute end-of-day journal commit" />
+                <ProtocolItem label="Complete end-of-day journal entry" />
               </>
             )}
           </div>
 
           {/* Technical Footer */}
           <div className="mt-8 pt-4 border-t border-white/5 text-[8px] font-mono text-slate-700 flex justify-between uppercase">
-            <span>Protocol_ID: TP-772</span>
+            <span>Checklist_Active</span>
             <span>Auth: Verified</span>
           </div>
         </div>
